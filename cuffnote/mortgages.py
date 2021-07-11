@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+
+# -*-coding:utf-8 -*-
+
 import numpy as np
 import numpy_financial as npf
 import pandas as pd
