@@ -14,7 +14,7 @@ class Mortgage:
         self.down_payment_percent = down_payment_percent
         self.interest_rate = interest_rate
         self.years = years
-        self.num_yearly_payments = num_yearly_payments
+        self.num_yearly_pmts = num_yearly_payments
         self.start_year, self.start_month, self.start_day = start_date
         self.start_date = (date(self.start_year, self.start_month, self.start_day))
         # calculate down payment and starting loan amount
@@ -22,9 +22,10 @@ class Mortgage:
         self.loan_amount = self.purchase_price - self.down_payment
         # determine monthly payment
         self.payment = self.get_payment()
+        self.payment_range = self.get_payment_range()
         
     def get_payment(self):
-        return round(-1 * npf.pmt(self.interest_rate/self.num_yearly_payments, self.years*self.num_yearly_payments, self.loan_amount), 2)
+        return round(-1 * npf.pmt(self.interest_rate/self.num_yearly_pmts, self.years*self.num_yearly_pmts, self.loan_amount), 2)
     
     def get_purchase_price(self):
         return self.purchase_price
