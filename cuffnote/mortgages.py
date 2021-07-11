@@ -56,7 +56,7 @@ class Mortgage:
         self.payment_range = self.get_payment_range()
         
     def get_payment(self):
-        """getter method for monthly principal + interest payment
+        """returns monthly principal + interest payment
 
         Returns:
             float: monthly payment
@@ -64,7 +64,7 @@ class Mortgage:
         return round(-1 * npf.pmt(self.interest_rate/self.num_yearly_pmts, self.years*self.num_yearly_pmts, self.loan_amount), 2)
     
     def get_purchase_price(self):
-        """getter method for purchase price (loan amount + down payment)
+        """returns purchase price (loan amount + down payment)
 
         Returns:
             int: the purchase price
@@ -72,7 +72,7 @@ class Mortgage:
         return self.purchase_price
     
     def set_purchase_price(self, purchase_price):
-        """setter method to change purchase price
+        """method to set/change purchase price
         
         Changing the purchase price will recalculate the down payment, loan amount, and monthly payment attributes.
         
@@ -89,7 +89,7 @@ class Mortgage:
         New monthly payment is: ${self.payment:,.2f}")
         
     def get_down_payment_percent(self):
-        """getter method for down payment percent
+        """returns down payment percent
 
         Returns:
             float: down payment percent
@@ -97,7 +97,7 @@ class Mortgage:
         return self.down_payment_percent
     
     def set_down_payment_percent(self, down_payment_percent):
-        """Setter method to change the down payment percent
+        """Set/change the down payment percent
         
         Changing the down payment percent will recalculate the down payment, the loan amount, and the monthly payment attributes.
         
@@ -114,7 +114,7 @@ class Mortgage:
         The new monthly payment is ${self.payment:3,.2f}')
         
     def get_down_payment(self):
-        """Getter method for down payment (purchase price * down payment percent)
+        """Returns down payment (purchase price * down payment percent)
 
         Returns:
             int: The down payment
@@ -122,7 +122,7 @@ class Mortgage:
         return self.down_payment
     
     def set_down_payment(self, down_payment):
-        """Setter method to change the down payment
+        """Set/change the down payment
         
         Changing the down payment will recalculate the loan amount, the down payment percent, and the monthly payment attributes.
         
@@ -139,52 +139,142 @@ class Mortgage:
         The new monthly payment is ${self.payment:3,.2f}')
     
     def get_interest_rate(self):
+        """Returns the interest rate
+
+        Returns:
+            float: interest rate as a float (0.04125 for 4.125%)
+        """
         return self.interest_rate
     
     def set_interest_rate(self, interest_rate):
+        """Set/change the interest rate
+        
+        Changing the interest rate will recalculate the monthly payment attribute
+        
+        Confirms changes with a print statement returning the new attribute values
+
+        Args:
+            interest_rate (float): interest rate, expressed as a float (0.04125 for 4.125%)
+        """
         self.interest_rate = interest_rate
         self.payment = self.get_payment()
-        print(f'Interest Rate updated to {self.interest_rate:.2%} and the new monthly payment is ${self.payment:3,.2f}')
+        print(f'Interest Rate updated to {self.interest_rate:.4%} and the new monthly payment is ${self.payment:3,.2f}')
     
     def get_years(self):
+        """returns the number of years over which the mortgage is amortized
+
+        Returns:
+            int: number of years
+        """
         return self.years
     
     def set_years(self, years):
+        """Set/change the number of years
+        
+        Changing the number of years will recalculate the monthly payment attribute
+        
+        Confirms changes with a print statement retunring the new attribute values
+
+        Args:
+            years ([type]): [description]
+        """
         self.years = years
         self.payment = self.get_payment()
         print(f'Number of years updated to {self.years} years and the new monthly payment is ${self.payment:3,.2f}')
     
     def get_num_yearly_pmts(self):
+        """Returns the number of yearly payments
+
+        Returns:
+            int: number of yearly payments
+        """
         return self.num_yearly_pmts
     
     def set_num_yearly_pmts(self, num_yearly_pmts):
+        """Set/change the number of yearly payments
+        
+        Changing the number of yearly payments will recalculate the monthly payment attribute
+        
+        Confirms changes with a print statement returning the new attribute values
+
+        Args:
+            num_yearly_pmts ([type]): [description]
+        """
         self.num_yearly_pmts = num_yearly_pmts
         self.payment = self.get_payment()
         print(f'Number of yearly payments updated to {self.num_yearly_pmts} and the per-period payment is ${self.payment:3,.2f}')
     
     def get_start_date(self):
+        """Returns the mortgage start date
+
+        Returns:
+            datetime.date: mortgage start date
+        """
         return self.start_date
     
     def set_start_date(self, start_date):
+        """Set/change the mortgage start date
+        
+        The new start date attribute value is confirmed with a print statement returning the new start date.
+
+        Args:
+            start_date (tuple): The mortgage start date as a tuple (YYYY, M, D). ex: (2000, 5, 1) is May 1, 2000.
+        """
         self.start_year, self.start_month, self.start_day = start_date
         self.start_date = (date(self.start_year, self.start_month, self.start_day))
         print(f'Start date updated to {self.start_date.strftime("%m-%d-%Y")}')
     
     def get_loan_amount(self):
+        """Return the loan amount (loan amount = purchase price - down payment)
+
+        Returns:
+            int: the loan amount (purchase price - down payment)
+        """
         return self.loan_amount
               
     def get_payment_range(self):
+        """Returns a DatetimeIndex of payment dates from loan start to finish.
+
+        Returns:
+            DatetimeIndex: Index of payment dates in Datetime format
+        """
         self.payment_range = pd.date_range(self.start_date, periods=self.years * self.num_yearly_pmts, freq='MS')
         self.payment_range.name = 'Payment Date'
         return self.payment_range
     
     def get_payoff_date(self):
+        """Returns mortgage payoff date. This is the date of the final loan payment.
+
+        Returns:
+            Datetime.date: Date of final payment
+        """
         return self.payment_range[-1].strftime("%m-%d-%Y")
               
     def get_number_of_payments(self):
+        """Returns the number of payment periods. This is equal to the number of years times the number of yearly payments.
+        
+        Example: A 30 year loan with monthly payments will have 360 payments.
+
+        Returns:
+            int: the number of payment periods
+        """
         return self.years * self.num_yearly_pmts
               
     def get_amortization_table(self):
+        """Returns amortization table containing the loan payment schedule. The columns include:
+        
+        1) Payment Date
+        2) Monthly payment
+        3) Principal Paid at each payment
+        4) Interest Paid at each payment
+        5) Beginning Balance at each payment
+        6) Ending Balance at each payment
+        7) Cumulative Principal Paid at each payment
+        8) Cumulative Interest Paid at each payment
+
+        Returns:
+            pandas.DataFrame: DataFrame containing the mortgage amortization table.
+        """
         self.payment_range = self.get_payment_range()
         self.atable = pd.DataFrame(
             index=self.payment_range,
@@ -207,10 +297,25 @@ class Mortgage:
         return self.atable.round(2)
     
     def get_total_principal_paid(self):
+        """Returns the total principal paid. This value should be equal to the loan amount.
+
+        Returns:
+            float: Total principal paid
+        """
         return round(self.atable['Cumulative Principal Paid'].iloc[-1], 2)
               
     def get_total_interest_paid(self):
+        """Returns the total interest paid over the life of the loan.
+
+        Returns:
+            float: Total interest paid
+        """
         return round(self.atable['Cumulative Interest Paid'].iloc[-1], 2)
     
     def get_total_cost_of_loan(self):
+        """Returns the total paid over the life of the loan and is equal to the total prinicipal plus the total interest.
+
+        Returns:
+            float: The total paid over the life of the loand
+        """
         return round(self.get_total_principal_paid() + self.get_total_interest_paid(), 2)
