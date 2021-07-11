@@ -21,7 +21,7 @@ class Mortgage:
     start_day (int): The day the mortgage starts
     start_date (tuple): The starting date the loan begins, represented as (YYYY, M, D). Example: (2000, 5, 1) for a May 1, 2000 start date.
     years (int): The length of the mortgage loan in years. Example: 30 for a 30 year loan.
-    num_yearly_payments (int, optional): The number of installment payments in a year. Typically, mortgages are paid monthly. Defaults to 12.
+    num_yearly_payments (int, optional): Th[summary]e number of installment payments in a year. Typically, mortgages are paid monthly. Defaults to 12.
     down_payment (int): The down payment paid at the start of the loan
     loan_amount (int): The financed portion of the mortgage. Equals purchase_price - down_payment.
     payment (float): The monthly principal + interest payment
@@ -319,3 +319,85 @@ class Mortgage:
             float: The total paid over the life of the loand
         """
         return round(self.get_total_principal_paid() + self.get_total_interest_paid(), 2)
+    
+    def summary_plots(self, figsize=(20,20)):
+        """Returns 2x2 figure of summary plots
+
+        Args:
+            figsize (tuple, optional): Figure size (Width, Length). Defaults to (20,20).
+        """
+        atable = self.get_amortization_table()
+        fig, axes = plt.subplots(nrows=2, ncols=2, sharex='col', figsize=figsize)
+        # axes[0, 0]: cumulative plot
+        ax = axes[0, 0]
+        atable.plot('Payment Date', 'Cumulative Principal Paid', ax=ax)
+        atable.plot('Payment Date', 'Cumulative Interest Paid', ax=ax)
+        atable.plot('Payment Date', 'Ending Balance', ax=ax)
+        ax.scatter(
+            atable[atable['Cumulative Principal Paid'] > atable['Cumulative Interest Paid']].iloc[0, 0],
+            atable[atable['Cumulative Principal Paid'] > atable['Cumulative Interest Paid']].iloc[0, -2],
+            label=f"Cross-Over: \
+            {atable[atable['Cumulative Principal Paid'] > atable['Cumulative Interest Paid']].iloc[0,0]: %Y-%m-%d}",
+            color='black'
+        )
+        ytick = mtick.StrMethodFormatter('${x:,.0f}')
+        ax.yaxis.set_major_formatter(ytick)
+        ax.set_ylabel('Dollars')
+        ax.set_ylim(0, atable['Cumulative Principal Paid'].max())
+        ax.set_title('Cumulative Principal vs. Interest', fontsize=12, fontweight='bold')
+        ax.legend(bbox_to_anchor=(1,1), loc='upper left', fontsize=8)
+        # axes[0, 1]: Principal vs. Interest per period
+        ax = axes[0, 1]
+        atable.groupby(atable['Payment Date'].map(lambda x: x.year)).sum().loc[:, ['Interest Paid', 'Principal Paid']].plot.bar(stacked=True, ax=ax)
+        ax.yaxis.set_major_formatter(ytick)
+        ax.set_ylabel('Dollars')
+        ax.set_title('Yearly principal versus interest paid', fontsize=12, fontweight='bold')
+        ax.legend(bbox_to_anchor=(1,1), loc='upper left', fontsize=8)
+        # axes[1, 0] : Debt to equity line plot
+        ax = axes[1, 0]
+        atable.plot('Payment Date', 'Ending Balance', ax=ax, label='Debt', color='red')
+        atable.plot('Payment Date', 'Cumulative Principal Paid', ax=ax, label='Equity', color='green')
+        ax.scatter(
+            atable[atable['Cumulative Principal Paid'] > atable['Ending Balance']].iloc[0, 0],
+            atable[atable['Cumulative Principal Paid'] > atable['Ending Balance']].iloc[0, -2],
+            color='black',
+            label=f"Cross-over: \
+            {atable[atable['Cumulative Principal Paid'] > atable['Ending Balance']].iloc[0, 0]:%Y-%m-%d}"
+        )
+        ax.yaxis.set_major_formatter(ytick)
+        ax.set_ylabel('Dollars')
+        ax.set_ylim(0, atable['Cumulative Principal Paid'].max())
+        ax.set_title('Debt vs. Equity', fontsize=12, fontweight='bold')
+        ax.legend(bbox_to_anchor=(1,1), loc='upper left', fontsize=8)
+        # axes[1, 1]: Debt to equity bar plot
+        ax = axes[1, 1]
+        year_end_debt = atable.groupby(atable['Payment Date'].map(lambda x: x.year)).min().loc[:, ['Payment Date', 'Ending Balance']]
+        year_end_equity = atable.groupby(atable['Payment Date'].map(lambda x: x.year)).max().loc[:, ['Payment Date', 'Cumulative Principal Paid']]
+        ax.bar(
+            x=np.arange(year_end_debt['Payment Date'].size) - 0.2,
+            height=year_end_debt['Ending Balance'],
+            color='red',
+            edgecolor='black',
+            width=0.4,
+            alpha=0.7,
+            label='Debt'
+        )
+        ax.bar(
+            x=np.arange(year_end_equity['Payment Date'].size) + 0.2,
+            height=year_end_equity['Cumulative Principal Paid'],
+            color='green',
+            edgecolor='black',
+            width=0.4,
+            alpha=0.7,
+            label='Equity'
+        )
+        ax.set_xticks(range(year_end_debt['Payment Date'].size))
+        ax.set_xlim(-1, len(year_end_debt))
+        ax.set_xticklabels(year_end_debt['Payment Date'].map(lambda x: x.year), rotation=45, fontsize=10)
+        ax.yaxis.set_major_formatter(ytick)
+        ax.set_ylabel('Dollars')
+        ax.set_ylim(0, year_end_equity['Cumulative Principal Paid'].max())
+        ax.set_title('Year-end Debt vs. Equity', fontsize=12, fontweight='bold')
+        ax.legend(bbox_to_anchor=(1,1), loc='upper left', fontsize=8)
+        plt.tight_layout(h_pad=2.2, rect=[0, 0.03, 1, 0.95])
+        return fig, plt.show()
