@@ -58,6 +58,8 @@ class Mortgage:
         # determine monthly payment
         self.payment = self.get_payment()
         self.payment_range = self.get_payment_range()
+        # create amortization table
+        self.atable = self.get_amortization_table()
         
     def get_payment(self):
         """returns monthly principal + interest payment
@@ -80,8 +82,6 @@ class Mortgage:
         
         Changing the purchase price will recalculate the down payment, loan amount, and monthly payment attributes.
         
-        Confirms change with a print statement returning the new attribute values.
-
         Args:
             purchase_price (int): purchase price
         """
@@ -89,8 +89,6 @@ class Mortgage:
         self.down_payment = self.purchase_price * self.down_payment_percent
         self.loan_amount = self.purchase_price - self.down_payment
         self.payment = self.get_payment()
-        print(f"Purchase price updated to: ${self.purchase_price:,.2f}\n\
-        New monthly payment is: ${self.payment:,.2f}")
         
     def get_down_payment_percent(self):
         """returns down payment percent
@@ -105,8 +103,6 @@ class Mortgage:
         
         Changing the down payment percent will recalculate the down payment, the loan amount, and the monthly payment attributes.
         
-        Confirms change with a print statement returning the new attribute values.
-
         Args:
             down_payment_percent (float): the down payment percent, as a float. Example: 0.0475 for a 4.75% rate.
         """
@@ -114,8 +110,6 @@ class Mortgage:
         self.down_payment = self.purchase_price * self.down_payment_percent
         self.loan_amount = self.purchase_price - self.down_payment
         self.payment = self.get_payment()
-        print(f'Down payment percentage updated to {self.down_payment_percent:.2%} which is ${self.down_payment:3,.2f}\n\
-        The new monthly payment is ${self.payment:3,.2f}')
         
     def get_down_payment(self):
         """Returns down payment (purchase price * down payment percent)
@@ -129,8 +123,6 @@ class Mortgage:
         """Set/change the down payment
         
         Changing the down payment will recalculate the loan amount, the down payment percent, and the monthly payment attributes.
-        
-        Confirms the changes with a print statement returning the new attribute values.
 
         Args:
             down_payment (int): down payment
@@ -139,8 +131,6 @@ class Mortgage:
         self.loan_amount = self.purchase_price - self.down_payment
         self.down_payment_percent = round(self.down_payment / self.purchase_price, 3)
         self.payment = self.get_payment()
-        print(f'Down payment updated to ${self.down_payment:3,.2f} which represents {self.down_payment_percent:.2%} down.\n\
-        The new monthly payment is ${self.payment:3,.2f}')
     
     def get_interest_rate(self):
         """Returns the interest rate
@@ -155,14 +145,11 @@ class Mortgage:
         
         Changing the interest rate will recalculate the monthly payment attribute
         
-        Confirms changes with a print statement returning the new attribute values
-
         Args:
             interest_rate (float): interest rate, expressed as a float (0.04125 for 4.125%)
         """
         self.interest_rate = interest_rate
         self.payment = self.get_payment()
-        print(f'Interest Rate updated to {self.interest_rate:.4%} and the new monthly payment is ${self.payment:3,.2f}')
     
     def get_years(self):
         """returns the number of years over which the mortgage is amortized
@@ -176,15 +163,12 @@ class Mortgage:
         """Set/change the number of years
         
         Changing the number of years will recalculate the monthly payment attribute
-        
-        Confirms changes with a print statement retunring the new attribute values
 
         Args:
             years ([type]): [description]
         """
         self.years = years
         self.payment = self.get_payment()
-        print(f'Number of years updated to {self.years} years and the new monthly payment is ${self.payment:3,.2f}')
     
     def get_num_yearly_pmts(self):
         """Returns the number of yearly payments
@@ -198,15 +182,12 @@ class Mortgage:
         """Set/change the number of yearly payments
         
         Changing the number of yearly payments will recalculate the monthly payment attribute
-        
-        Confirms changes with a print statement returning the new attribute values
 
         Args:
             num_yearly_pmts ([type]): [description]
         """
         self.num_yearly_pmts = num_yearly_pmts
         self.payment = self.get_payment()
-        print(f'Number of yearly payments updated to {self.num_yearly_pmts} and the per-period payment is ${self.payment:3,.2f}')
     
     def get_start_date(self):
         """Returns the mortgage start date
@@ -226,7 +207,6 @@ class Mortgage:
         """
         self.start_year, self.start_month, self.start_day = start_date
         self.start_date = (date(self.start_year, self.start_month, self.start_day))
-        print(f'Start date updated to {self.start_date.strftime("%m-%d-%Y")}')
     
     def get_loan_amount(self):
         """Return the loan amount (loan amount = purchase price - down payment)
