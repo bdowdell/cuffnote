@@ -384,4 +384,5 @@ class Mortgage:
         ax.set_title('Year-end Debt vs. Equity', fontsize=12, fontweight='bold')
         ax.legend(bbox_to_anchor=(1,1), loc='upper left', fontsize=8)
         plt.tight_layout(h_pad=2.2, rect=[0, 0.03, 1, 0.95])
-        return fig, plt.show()
+        plt.show()
+        return None
