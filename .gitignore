@@ -1,3 +1,4 @@
 .vscode/
 cuffnote/__pycache__
 tests/__pycache__
+*.egg-info/
