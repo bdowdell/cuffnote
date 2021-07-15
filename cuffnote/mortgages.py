@@ -386,3 +386,71 @@ class Mortgage:
         plt.tight_layout(h_pad=2.2, rect=[0, 0.03, 1, 0.95])
         plt.show()
         return None
+    
+    
+class ExtraMonthlyPrincipal(Mortgage):
+    
+    def __init__(self, mortgage, extra_principal):
+        # inherit attributes from base Mortgage class
+        self.purchase_price = mortgage.get_purchase_price()
+        self.down_payment_percent = mortgage.get_down_payment_percent()
+        self.interest_rate = mortgage.get_interest_rate()
+        self.years = mortgage.get_years()
+        self.num_yearly_pmts = mortgage.get_num_yearly_pmts()
+        self.start_date = mortgage.get_start_date()
+        self.down_payment = mortgage.get_down_payment()
+        self.loan_amount = mortgage.get_loan_amount()
+        self.payment = mortgage.get_payment()
+        self.payment_range = mortgage.get_payment_range()
+        self.atable = mortgage.get_amortization_table()
+        # initialize instance extra_principal_payment attribute
+        self.extra_principal = float(extra_principal)
+        
+    def get_extra_principal(self):
+        return self.extra_principal
+    
+    def set_extra_principal(self, extra_principal):
+        self.extra_principal = float(extra_principal)
+        
+    def get_amortization_table(self, extra_principal_start_date=None):
+        self.payment_range = self.get_payment_range()
+        self.atable = pd.DataFrame(
+            index=self.payment_range,
+            columns=['Payment', 'Principal Paid', 'Interest Paid', 'Extra Principal', 'Beginning Balance', 'Ending Balance', 'Cumulative Principal Paid', 'Cumulative Interest Paid'],
+            dtype=float
+        )
+        self.atable.reset_index(inplace=True)
+        self.atable.index += 1
+        self.atable.index.name = 'Period'
+        self.atable['Payment'] = self.get_payment()
+        self.atable[['Principal Paid', 'Interest Paid', 'Extra Principal', 'Beginning Balance', 'Cumulative Principal Paid', 'Cumulative Interest Paid']] = 0
+        self.atable['Ending Balance'] = np.nan
+        self.atable.loc[1, 'Principal Paid'] = -1 * npf.ppmt(self.interest_rate/self.num_yearly_pmts, self.atable.index, self.years*self.num_yearly_pmts, self.loan_amount)[0]
+        self.atable.loc[1, 'Interest Paid'] = -1 * npf.ipmt(self.interest_rate/self.num_yearly_pmts, self.atable.index, self.years*self.num_yearly_pmts, self.loan_amount)[0]
+        self.atable['Extra Principal'] = self.get_extra_principal()
+        if extra_principal_start_date:
+            # If a start date is not provided, assume that additional principal payments will start with the first payment
+            # Otherwise, find the Payment Period corresponding with the provided start date and fill with zeros up to that point
+            self.atable.loc[self.atable['Payment Date'] < extra_principal_start_date, 'Extra Principal'] = float(0)
+        self.atable.loc[1, 'Beginning Balance'] = self.loan_amount
+        self.atable.loc[1, 'Ending Balance'] = self.atable.loc[1, 'Beginning Balance'] - self.atable.loc[1, 'Principal Paid'] - self.atable.loc[1, 'Extra Principal']
+        for i in range(2, self.years*self.num_yearly_pmts + 1):
+            if round(self.atable.loc[i - 1, 'Ending Balance'], 2) > 0 and self.get_payment() >= self.atable.loc[i - 1, 'Ending Balance']:
+                self.atable.loc[i, 'Payment'] = self.atable.loc[i - 1, 'Ending Balance'] * (1 + self.interest_rate / self.num_yearly_pmts)
+                self.atable.loc[i, 'Interest Paid'] = self.interest_rate / self.num_yearly_pmts * self.atable.loc[i - 1, 'Ending Balance']
+                self.atable.loc[i, 'Principal Paid'] = self.atable.loc[i, 'Payment'] - self.atable.loc[i, 'Interest Paid']
+                self.atable.loc[i, 'Ending Balance'] = self.atable.loc[i - 1, 'Ending Balance'] - self.atable.loc[i, 'Principal Paid']
+                self.atable.loc[i, 'Beginning Balance'] = self.atable.loc[i - 1, 'Ending Balance']
+                self.atable.loc[i, 'Extra Principal'] = 0.0
+                if self.atable.loc[i, 'Ending Balance'].round(2) == 0:
+                    break
+            else:
+                self.atable.loc[i, 'Interest Paid'] = self.interest_rate / self.num_yearly_pmts * self.atable.loc[i - 1, 'Ending Balance']
+                self.atable.loc[i, 'Principal Paid'] = self.atable.loc[i, 'Payment'] - self.atable.loc[i, 'Interest Paid']
+                self.atable.loc[i, 'Ending Balance'] = self.atable.loc[i - 1, 'Ending Balance'] - self.atable.loc[i, 'Principal Paid'] - self.atable.loc[i, 'Extra Principal']
+                self.atable.loc[i, 'Beginning Balance'] = self.atable.loc[i - 1, 'Ending Balance']
+        self.atable = self.atable[self.atable['Ending Balance'].round(2) >= 0.0]
+        per_month_principal_paid = self.atable['Principal Paid'] + self.atable['Extra Principal']
+        self.atable['Cumulative Principal Paid'] = per_month_principal_paid.cumsum()
+        self.atable['Cumulative Interest Paid'] = self.atable['Interest Paid'].cumsum()
+        return self.atable.round(2)
