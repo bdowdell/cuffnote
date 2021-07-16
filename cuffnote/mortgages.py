@@ -5,7 +5,7 @@
 import numpy as np
 import numpy_financial as npf
 import pandas as pd
-from datetime import date
+#from datetime import date
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 
@@ -40,7 +40,7 @@ class Mortgage:
             purchase_price (int): The full purchase price amount. Example: 200000 for a $200,000 purchase price.
             down_payment_percent (float): Percent of purchase price paid as down payment. Example: 0.2 for a 20% down payment.
             interest_rate (float): The loan interest rate. Example: 0.04125 for a 4.125% rate.
-            start_date (tuple): The starting date the loan begins, represented as (YYYY, M, D). Example: (2000, 5, 1) for a May 1, 2000 start date.
+            start_date (str): The starting date the loan begins, represented as '%Y-%m-%d'. Example: '2000-5-1' for a May 1, 2000 start date.
             years (int): The length of the mortgage loan in years. Example: 30 for a 30 year loan.
             num_yearly_payments (int, optional): The number of installment payments in a year. Typically, mortgages are paid monthly. Defaults to 12.
         """
@@ -48,8 +48,9 @@ class Mortgage:
         self.purchase_price = purchase_price
         self.down_payment_percent = down_payment_percent
         self.interest_rate = interest_rate
-        self.start_year, self.start_month, self.start_day = start_date
-        self.start_date = (date(self.start_year, self.start_month, self.start_day))
+        #self.start_year, self.start_month, self.start_day = start_date
+        #self.start_date = (date(self.start_year, self.start_month, self.start_day))
+        self.start_date = start_date
         self.years = years
         self.num_yearly_pmts = num_yearly_payments
         # calculate down payment and starting loan amount
@@ -203,10 +204,11 @@ class Mortgage:
         The new start date attribute value is confirmed with a print statement returning the new start date.
 
         Args:
-            start_date (tuple): The mortgage start date as a tuple (YYYY, M, D). ex: (2000, 5, 1) is May 1, 2000.
+            start_date (str): The mortgage start date as a tuple '%Y-%m-%d'. ex: '2000-5-1' is May 1, 2000.
         """
-        self.start_year, self.start_month, self.start_day = start_date
-        self.start_date = (date(self.start_year, self.start_month, self.start_day))
+        #self.start_year, self.start_month, self.start_day = start_date
+        #self.start_date = (date(self.start_year, self.start_month, self.start_day))
+        self.start_date = start_date
     
     def get_loan_amount(self):
         """Return the loan amount (loan amount = purchase price - down payment)
@@ -392,19 +394,17 @@ class ExtraMonthlyPrincipal(Mortgage):
     
     def __init__(self, mortgage, extra_principal):
         # inherit attributes from base Mortgage class
-        self.purchase_price = mortgage.get_purchase_price()
-        self.down_payment_percent = mortgage.get_down_payment_percent()
-        self.interest_rate = mortgage.get_interest_rate()
-        self.years = mortgage.get_years()
-        self.num_yearly_pmts = mortgage.get_num_yearly_pmts()
-        self.start_date = mortgage.get_start_date()
-        self.down_payment = mortgage.get_down_payment()
-        self.loan_amount = mortgage.get_loan_amount()
-        self.payment = mortgage.get_payment()
-        self.payment_range = mortgage.get_payment_range()
-        self.atable = mortgage.get_amortization_table()
         # initialize instance extra_principal_payment attribute
         self.extra_principal = float(extra_principal)
+        Mortgage.__init__(
+            self,
+            mortgage.get_purchase_price(),
+            mortgage.get_down_payment_percent(),
+            mortgage.get_interest_rate(),
+            mortgage.get_start_date(),
+            mortgage.get_years(),
+            mortgage.get_num_yearly_pmts()
+        )
         
     def get_extra_principal(self):
         return self.extra_principal

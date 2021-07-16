@@ -18,7 +18,7 @@ class TestExtraMonthlyPrincipal(unittest.TestCase):
         self.down_payment = self.purhase_price * self.down_payment_percent
         self.loan_amount = self.purhase_price - self.down_payment
         self.interest_rate = 0.03375
-        self.start_date = (2021, 1, 1)
+        self.start_date = '2021-1-1'
         self.years = 30
         self.num_yearly_pmts = 12
         # instantiate base mortgage
@@ -57,25 +57,25 @@ class TestExtraMonthlyPrincipal(unittest.TestCase):
             self.loan_xtra_prncpl.get_extra_principal()
         )
         
-    def test_03a_get_amortization_table_df_instance(self):
+    def test_03_get_amortization_table_df_instance(self):
         self.assertIsInstance(
             self.loan_xtra_prncpl.get_amortization_table(),
             pd.DataFrame
         )
         
-    def test_03b_get_amortization_table_extra_principal_col(self):
+    def test_04_get_amortization_table_extra_principal_col(self):
         self.assertIn(
             'Extra Principal',
             self.loan_xtra_prncpl.get_amortization_table().columns
         )
         
-    def test_03c_get_amortization_table_equal_extra_principal(self):
+    def test_05_get_amortization_table_equal_extra_principal(self):
         self.assertEqual(
             self.loan_xtra_prncpl.get_extra_principal(),
             self.loan_xtra_prncpl.get_amortization_table().loc[1, 'Extra Principal']
         )
         
-    def test_03d_get_amortization_table_start_date(self):
+    def test_06_get_amortization_table_start_date(self):
         new_extra_start_date = self.loan_xtra_prncpl.get_payment_range()[12].strftime('%Y-%m-%d')
         atable_extra_prncpl_shifted = self.loan_xtra_prncpl.get_amortization_table(new_extra_start_date)
         self.assertEqual(
@@ -86,6 +86,9 @@ class TestExtraMonthlyPrincipal(unittest.TestCase):
             self.loan_xtra_prncpl.get_extra_principal(),
             atable_extra_prncpl_shifted.loc[13, 'Extra Principal']
         )
+        
+    #def test_07_get_amortization_table_payoff_date(self):
+        
         
 
 if __name__ == '__main__':

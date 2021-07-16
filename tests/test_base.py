@@ -16,7 +16,7 @@ class TestBaseMortgage(unittest.TestCase):
         self.down_payment = self.purchase_price * self.down_payment_percent
         self.loan_amount = self.purchase_price - self.down_payment
         self.interest_rate = 0.03375
-        self.start_date = (2021, 1, 1)
+        self.start_date = '2021-1-1'
         self.years = 30
         self.num_yearly_pmts = 12
         self.loan = Mortgage(
@@ -125,44 +125,36 @@ class TestBaseMortgage(unittest.TestCase):
         self.assertAlmostEqual(pmt, self.loan.payment)
         
     def test_13_get_start_date(self):
-        start_year, start_month, start_day = self.start_date
-        start_date = (date(start_year, start_month, start_day))
-        self.assertEqual(start_date, self.loan.get_start_date())
+        self.assertEqual(self.start_date, self.loan.get_start_date())
         
     def test_14_set_start_date(self):
-        start_date = (2022, 1, 1)
-        start_year, start_month, start_day = start_date
+        start_date = '2022-1-1'
         self.loan.set_start_date(start_date)
-        start_date = (date(start_year, start_month, start_day))
         self.assertEqual(start_date, self.loan.start_date)
         
     def test_15_get_loan_amount(self):
         self.assertEqual(self.loan_amount, self.loan.get_loan_amount())
         
     def test_16_get_payment_range(self):
-        start_year, start_month, start_day = self.start_date
-        start_date = (date(start_year, start_month, start_day))
         self.assertEqual(self.loan.get_payment_range().dtype, pd.date_range(
-            start_date, periods=self.years*self.num_yearly_pmts, freq='MS'
+            self.start_date, periods=self.years*self.num_yearly_pmts, freq='MS'
         ).dtype)
         self.assertEqual(self.loan.get_payment_range().size, pd.date_range(
-            start_date, periods=self.years*self.num_yearly_pmts, freq='MS'
+            self.start_date, periods=self.years*self.num_yearly_pmts, freq='MS'
         ).size)
         self.assertEqual(
             self.loan.get_payment_range()[0],
-            pd.date_range(start_date, periods=self.years*self.num_yearly_pmts, freq='MS')[0]
+            pd.date_range(self.start_date, periods=self.years*self.num_yearly_pmts, freq='MS')[0]
         )
         self.assertEqual(
             self.loan.get_payment_range()[-1],
-            pd.date_range(start_date, periods=self.years*self.num_yearly_pmts, freq='MS')[-1]
+            pd.date_range(self.start_date, periods=self.years*self.num_yearly_pmts, freq='MS')[-1]
         )
         
     def test_17_get_payoff_date(self):
-        start_year, start_month, start_day = self.start_date
-        start_date = (date(start_year, start_month, start_day))
         self.assertEqual(
             self.loan.get_payoff_date(),
-            pd.date_range(start_date, periods=self.years*self.num_yearly_pmts, freq='MS')[-1].strftime('%m-%d-%Y')
+            pd.date_range(self.start_date, periods=self.years*self.num_yearly_pmts, freq='MS')[-1].strftime('%m-%d-%Y')
         )
         
     def test_18_get_number_of_payments(self):
