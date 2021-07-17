@@ -443,3 +443,10 @@ class ExtraMonthlyPrincipal(Mortgage):
     def get_amortization_table(self, extra_principal_start_date=None):
         self.__extra_principal_start_date = extra_principal_start_date
         return self.__amortization_table
+
+    @property
+    def __payoff_date(self):
+        return self.get_amortization_table().iloc[-1, 0].strftime('%m %d, %Y')
+    
+    def get_payoff_date(self):
+        return self.__payoff_date
