@@ -17,16 +17,16 @@ class Mortgage:
     
     Attributes
     -----------
-    purchase_price (int): The full purchase price amount. Example: 200000 for a $200,000 purchase price.
-    down_payment_percent (float): Percent of purchase price paid as down payment. Example: 0.2 for a 20% down payment.
-    interest_rate (float): The loan interest rate. Example: 0.04125 for a 4.125% rate.
-    start_date (str): The starting date the loan begins, represented as '%Y-%m-%d'. Example: '2000-5-1' for a May 1, 2000 start date.
-    years (int): The length of the mortgage loan in years. Example: 30 for a 30 year loan.
-    num_yearly_payments (int, optional): Th[summary]e number of installment payments in a year. Typically, mortgages are paid monthly. Defaults to 12.
-    down_payment (int): The down payment paid at the start of the loan
-    loan_amount (int): The financed portion of the mortgage. Equals purchase_price - down_payment.
-    payment (float): The monthly principal + interest payment
-    payment_range (DatetimeIndex): Datetime index of payment periods from loan start date to loan payoff date.
+    __purchase_price (int): The full purchase price amount. Example: 200000 for a $200,000 purchase price.
+    __down_payment_percent (float): Percent of purchase price paid as down payment. Example: 0.2 for a 20% down payment.
+    __interest_rate (float): The loan interest rate. Example: 0.04125 for a 4.125% rate.
+    __start_date (str): The starting date the loan begins, represented as '%Y-%m-%d'. Example: '2000-5-1' for a May 1, 2000 start date.
+    __years (int): The length of the mortgage loan in years. Example: 30 for a 30 year loan.
+    __num_yearly_payments (int, optional): Th[summary]e number of installment payments in a year. Typically, mortgages are paid monthly. Defaults to 12.
+    __down_payment (int): The down payment paid at the start of the loan
+    __loan_amount (int): The financed portion of the mortgage. Equals purchase_price - down_payment.
+    __payment (float): The monthly principal + interest payment
+    __payment_range (DatetimeIndex): Datetime index of payment periods from loan start date to loan payoff date.
     """
     
     def __init__(self, purchase_price, down_payment_percent, interest_rate, start_date, years, num_yearly_payments=12):
