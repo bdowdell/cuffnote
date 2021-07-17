@@ -20,17 +20,13 @@ class Mortgage:
     purchase_price (int): The full purchase price amount. Example: 200000 for a $200,000 purchase price.
     down_payment_percent (float): Percent of purchase price paid as down payment. Example: 0.2 for a 20% down payment.
     interest_rate (float): The loan interest rate. Example: 0.04125 for a 4.125% rate.
-    start_year (int): The year the mortgage starts
-    start_month (int): The month the mortgage starts
-    start_day (int): The day the mortgage starts
-    start_date (tuple): The starting date the loan begins, represented as (YYYY, M, D). Example: (2000, 5, 1) for a May 1, 2000 start date.
+    start_date (str): The starting date the loan begins, represented as '%Y-%m-%d'. Example: '2000-5-1' for a May 1, 2000 start date.
     years (int): The length of the mortgage loan in years. Example: 30 for a 30 year loan.
     num_yearly_payments (int, optional): Th[summary]e number of installment payments in a year. Typically, mortgages are paid monthly. Defaults to 12.
     down_payment (int): The down payment paid at the start of the loan
     loan_amount (int): The financed portion of the mortgage. Equals purchase_price - down_payment.
     payment (float): The monthly principal + interest payment
     payment_range (DatetimeIndex): Datetime index of payment periods from loan start date to loan payoff date.
-    atable (Pandas.DataFrame): Pandas DataFrame containing the amortization table
     """
     
     def __init__(self, purchase_price, down_payment_percent, interest_rate, start_date, years, num_yearly_payments=12):
@@ -55,8 +51,6 @@ class Mortgage:
         self.__down_payment = self.__purchase_price * self.__down_payment_percent
         self.__loan_amount = self.__purchase_price - self.__down_payment
         self.__payment_range = self.get_payment_range()
-        # create amortization table
-        #atable = self.get_amortization_table()
         
     def get_payment(self):
         """returns monthly principal + interest payment
