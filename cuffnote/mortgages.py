@@ -22,7 +22,7 @@ class Mortgage:
     __interest_rate (float): The loan interest rate. Example: 0.04125 for a 4.125% rate.
     __start_date (str): The starting date the loan begins, represented as '%Y-%m-%d'. Example: '2000-5-1' for a May 1, 2000 start date.
     __years (int): The length of the mortgage loan in years. Example: 30 for a 30 year loan.
-    __num_yearly_payments (int, optional): Th[summary]e number of installment payments in a year. Typically, mortgages are paid monthly. Defaults to 12.
+    __num_yearly_payments (int, optional): Th[summary]e numprivate method to update from setterber of installment payments in a year. Typically, mortgages are paid monthly. Defaults to 12.
     __down_payment (int): The down payment paid at the start of the loan
     __loan_amount (int): The financed portion of the mortgage. Equals purchase_price - down_payment.
     __payment (float): The monthly principal + interest payment
@@ -47,18 +47,26 @@ class Mortgage:
         self.__start_date = start_date
         self.__years = years
         self.__num_yearly_pmts = num_yearly_payments
-        # calculate down payment and starting loan amount
-        self.__down_payment = self.__purchase_price * self.__down_payment_percent
-        self.__loan_amount = self.__purchase_price - self.__down_payment
-        self.__payment_range = self.get_payment_range()
         
+    @property
+    def __down_payment(self):
+        return self.get_purchase_price() * self.get_down_payment_percent()
+    
+    @property
+    def __loan_amount(self):
+        return self.get_purchase_price() - self.get_down_payment()
+    
+    @property
+    def __payment(self):
+        return round(-1 * npf.pmt(self.__interest_rate/self.__num_yearly_pmts, self.__years*self.__num_yearly_pmts, self.__loan_amount), 2)
+    
     def get_payment(self):
         """returns monthly principal + interest payment
 
         Returns:
             float: monthly payment
         """
-        return round(-1 * npf.pmt(self.__interest_rate/self.__num_yearly_pmts, self.__years*self.__num_yearly_pmts, self.__loan_amount), 2)
+        return self.__payment
     
     def get_purchase_price(self):
         """returns purchase price (loan amount + down payment)
@@ -77,8 +85,6 @@ class Mortgage:
             purchase_price (int): purchase price
         """
         self.__purchase_price = purchase_price
-        self.__down_payment = self.__purchase_price * self.__down_payment_percent
-        self.__loan_amount = self.__purchase_price - self.__down_payment
         
     def get_down_payment_percent(self):
         """returns down payment percent
@@ -97,8 +103,6 @@ class Mortgage:
             down_payment_percent (float): the down payment percent, as a float. Example: 0.0475 for a 4.75% rate.
         """
         self.__down_payment_percent = down_payment_percent
-        self.__down_payment = self.__purchase_price * self.__down_payment_percent
-        self.__loan_amount = self.__purchase_price - self.__down_payment
         
     def get_down_payment(self):
         """Returns down payment (purchase price * down payment percent)
@@ -107,18 +111,6 @@ class Mortgage:
             int: The down payment
         """
         return self.__down_payment
-    
-    def set_down_payment(self, down_payment):
-        """Set/change the down payment
-        
-        Changing the down payment will recalculate the loan amount, the down payment percent, and the monthly payment attributes.
-
-        Args:
-            down_payment (int): down payment
-        """
-        self.__down_payment = down_payment
-        self.__loan_amount = self.__purchase_price - self.__down_payment
-        self.__down_payment_percent = round(self.__down_payment / self.__purchase_price, 3)
     
     def get_interest_rate(self):
         """Returns the interest rate
@@ -200,15 +192,23 @@ class Mortgage:
         """
         return self.__loan_amount
               
+    @property
+    def __payment_range(self):
+        payment_range = pd.date_range(self.__start_date, periods=self.__years*self.__num_yearly_pmts, freq='MS')
+        payment_range.name = 'Payment Date'
+        return payment_range
+    
     def get_payment_range(self):
         """Returns a DatetimeIndex of payment dates from loan start to finish.
 
         Returns:
             DatetimeIndex: Index of payment dates in Datetime format
         """
-        self.__payment_range = pd.date_range(self.__start_date, periods=self.__years * self.__num_yearly_pmts, freq='MS')
-        self.__payment_range.name = 'Payment Date'
         return self.__payment_range
+    
+    @property
+    def __payoff_date(self):
+        return self.get_payment_range()[-1].strftime('%m-%d-%Y')
     
     def get_payoff_date(self):
         """Returns mortgage payoff date. This is the date of the final loan payment.
@@ -216,7 +216,7 @@ class Mortgage:
         Returns:
             Datetime.date: Date of final payment
         """
-        return self.__payment_range[-1].strftime("%m-%d-%Y")
+        return self.__payoff_date
               
     def get_number_of_payments(self):
         """Returns the number of payment periods. This is equal to the number of years times the number of yearly payments.
@@ -228,7 +228,8 @@ class Mortgage:
         """
         return self.__years * self.__num_yearly_pmts
               
-    def get_amortization_table(self):
+    @property
+    def __amortization_table(self):
         """Returns amortization table containing the loan payment schedule. The columns include:
         
         1) Payment Date
@@ -243,9 +244,8 @@ class Mortgage:
         Returns:
             pandas.DataFrame: DataFrame containing the mortgage amortization table.
         """
-        self.__payment_range = self.get_payment_range()
         atable = pd.DataFrame(
-            index=self.__payment_range,
+            index=self.get_payment_range(),
             columns=['Payment', 'Principal Paid', 'Interest Paid', 'Beginning Balance', 'Ending Balance'],
             dtype=float
         )
@@ -263,6 +263,9 @@ class Mortgage:
         atable['Cumulative Principal Paid'] = atable['Principal Paid'].cumsum()
         atable['Cumulative Interest Paid'] = atable['Interest Paid'].cumsum()
         return atable.round(2)
+    
+    def get_amortization_table(self):
+        return self.__amortization_table
     
     def get_total_principal_paid(self):
         """Returns the total principal paid. This value should be equal to the loan amount.
@@ -371,7 +374,7 @@ class Mortgage:
         ax.legend(bbox_to_anchor=(1,1), loc='upper left', fontsize=8)
         plt.tight_layout(h_pad=2.2, rect=[0, 0.03, 1, 0.95])
         plt.show()
-        return None
+        return None    
     
     
 class ExtraMonthlyPrincipal(Mortgage):
@@ -394,10 +397,10 @@ class ExtraMonthlyPrincipal(Mortgage):
     def set_extra_principal(self, extra_principal):
         self.__extra_principal = float(extra_principal)
         
-    def get_amortization_table(self, extra_principal_start_date=None):
-        self.__payment_range = self.get_payment_range()
+    @property
+    def __amortization_table(self):
         atable = pd.DataFrame(
-            index=self.__payment_range,
+            index=self.get_payment_range(),
             columns=['Payment', 'Principal Paid', 'Interest Paid', 'Extra Principal', 'Beginning Balance', 'Ending Balance', 'Cumulative Principal Paid', 'Cumulative Interest Paid'],
             dtype=float
         )
@@ -410,10 +413,10 @@ class ExtraMonthlyPrincipal(Mortgage):
         atable.loc[1, 'Principal Paid'] = -1 * npf.ppmt(self.get_interest_rate()/self.get_num_yearly_pmts(), atable.index, self.get_years()*self.get_num_yearly_pmts(), self.get_loan_amount())[0]
         atable.loc[1, 'Interest Paid'] = -1 * npf.ipmt(self.get_interest_rate()/self.get_num_yearly_pmts(), atable.index, self.get_years()*self.get_num_yearly_pmts(), self.get_loan_amount())[0]
         atable['Extra Principal'] = self.get_extra_principal()
-        if extra_principal_start_date:
+        if self.__extra_principal_start_date:
             # If a start date is not provided, assume that additional principal payments will start with the first payment
             # Otherwise, find the Payment Period corresponding with the provided start date and fill with zeros up to that point
-            atable.loc[atable['Payment Date'] < extra_principal_start_date, 'Extra Principal'] = float(0)
+            atable.loc[atable['Payment Date'] < self.__extra_principal_start_date, 'Extra Principal'] = float(0)
         atable.loc[1, 'Beginning Balance'] = self.get_loan_amount()
         atable.loc[1, 'Ending Balance'] = atable.loc[1, 'Beginning Balance'] - atable.loc[1, 'Principal Paid'] - atable.loc[1, 'Extra Principal']
         for i in range(2, self.get_years()*self.get_num_yearly_pmts() + 1):
@@ -436,3 +439,7 @@ class ExtraMonthlyPrincipal(Mortgage):
         atable['Cumulative Principal Paid'] = per_month_principal_paid.cumsum()
         atable['Cumulative Interest Paid'] = atable['Interest Paid'].cumsum()
         return atable.round(2)
+    
+    def get_amortization_table(self, extra_principal_start_date=None):
+        self.__extra_principal_start_date = extra_principal_start_date
+        return self.__amortization_table
