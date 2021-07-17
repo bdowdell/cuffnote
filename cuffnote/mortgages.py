@@ -45,22 +45,18 @@ class Mortgage:
             num_yearly_payments (int, optional): The number of installment payments in a year. Typically, mortgages are paid monthly. Defaults to 12.
         """
         # initialize instance variables
-        self.purchase_price = purchase_price
-        self.down_payment_percent = down_payment_percent
-        self.interest_rate = interest_rate
-        #self.start_year, self.start_month, self.start_day = start_date
-        #self.start_date = (date(self.start_year, self.start_month, self.start_day))
-        self.start_date = start_date
-        self.years = years
-        self.num_yearly_pmts = num_yearly_payments
+        self.__purchase_price = purchase_price
+        self.__down_payment_percent = down_payment_percent
+        self.__interest_rate = interest_rate
+        self.__start_date = start_date
+        self.__years = years
+        self.__num_yearly_pmts = num_yearly_payments
         # calculate down payment and starting loan amount
-        self.down_payment = self.purchase_price * self.down_payment_percent
-        self.loan_amount = self.purchase_price - self.down_payment
-        # determine monthly payment
-        self.payment = self.get_payment()
-        self.payment_range = self.get_payment_range()
+        self.__down_payment = self.__purchase_price * self.__down_payment_percent
+        self.__loan_amount = self.__purchase_price - self.__down_payment
+        self.__payment_range = self.get_payment_range()
         # create amortization table
-        self.atable = self.get_amortization_table()
+        #atable = self.get_amortization_table()
         
     def get_payment(self):
         """returns monthly principal + interest payment
@@ -68,7 +64,7 @@ class Mortgage:
         Returns:
             float: monthly payment
         """
-        return round(-1 * npf.pmt(self.interest_rate/self.num_yearly_pmts, self.years*self.num_yearly_pmts, self.loan_amount), 2)
+        return round(-1 * npf.pmt(self.__interest_rate/self.__num_yearly_pmts, self.__years*self.__num_yearly_pmts, self.__loan_amount), 2)
     
     def get_purchase_price(self):
         """returns purchase price (loan amount + down payment)
@@ -76,7 +72,7 @@ class Mortgage:
         Returns:
             int: the purchase price
         """
-        return self.purchase_price
+        return self.__purchase_price
     
     def set_purchase_price(self, purchase_price):
         """method to set/change purchase price
@@ -86,10 +82,9 @@ class Mortgage:
         Args:
             purchase_price (int): purchase price
         """
-        self.purchase_price = purchase_price
-        self.down_payment = self.purchase_price * self.down_payment_percent
-        self.loan_amount = self.purchase_price - self.down_payment
-        self.payment = self.get_payment()
+        self.__purchase_price = purchase_price
+        self.__down_payment = self.__purchase_price * self.__down_payment_percent
+        self.__loan_amount = self.__purchase_price - self.__down_payment
         
     def get_down_payment_percent(self):
         """returns down payment percent
@@ -97,7 +92,7 @@ class Mortgage:
         Returns:
             float: down payment percent
         """
-        return self.down_payment_percent
+        return self.__down_payment_percent
     
     def set_down_payment_percent(self, down_payment_percent):
         """Set/change the down payment percent
@@ -107,10 +102,9 @@ class Mortgage:
         Args:
             down_payment_percent (float): the down payment percent, as a float. Example: 0.0475 for a 4.75% rate.
         """
-        self.down_payment_percent = down_payment_percent
-        self.down_payment = self.purchase_price * self.down_payment_percent
-        self.loan_amount = self.purchase_price - self.down_payment
-        self.payment = self.get_payment()
+        self.__down_payment_percent = down_payment_percent
+        self.__down_payment = self.__purchase_price * self.__down_payment_percent
+        self.__loan_amount = self.__purchase_price - self.__down_payment
         
     def get_down_payment(self):
         """Returns down payment (purchase price * down payment percent)
@@ -118,7 +112,7 @@ class Mortgage:
         Returns:
             int: The down payment
         """
-        return self.down_payment
+        return self.__down_payment
     
     def set_down_payment(self, down_payment):
         """Set/change the down payment
@@ -128,10 +122,9 @@ class Mortgage:
         Args:
             down_payment (int): down payment
         """
-        self.down_payment = down_payment
-        self.loan_amount = self.purchase_price - self.down_payment
-        self.down_payment_percent = round(self.down_payment / self.purchase_price, 3)
-        self.payment = self.get_payment()
+        self.__down_payment = down_payment
+        self.__loan_amount = self.__purchase_price - self.__down_payment
+        self.__down_payment_percent = round(self.__down_payment / self.__purchase_price, 3)
     
     def get_interest_rate(self):
         """Returns the interest rate
@@ -139,7 +132,7 @@ class Mortgage:
         Returns:
             float: interest rate as a float (0.04125 for 4.125%)
         """
-        return self.interest_rate
+        return self.__interest_rate
     
     def set_interest_rate(self, interest_rate):
         """Set/change the interest rate
@@ -149,8 +142,7 @@ class Mortgage:
         Args:
             interest_rate (float): interest rate, expressed as a float (0.04125 for 4.125%)
         """
-        self.interest_rate = interest_rate
-        self.payment = self.get_payment()
+        self.__interest_rate = interest_rate
     
     def get_years(self):
         """returns the number of years over which the mortgage is amortized
@@ -158,7 +150,7 @@ class Mortgage:
         Returns:
             int: number of years
         """
-        return self.years
+        return self.__years
     
     def set_years(self, years):
         """Set/change the number of years
@@ -168,8 +160,7 @@ class Mortgage:
         Args:
             years ([type]): [description]
         """
-        self.years = years
-        self.payment = self.get_payment()
+        self.__years = years
     
     def get_num_yearly_pmts(self):
         """Returns the number of yearly payments
@@ -177,7 +168,7 @@ class Mortgage:
         Returns:
             int: number of yearly payments
         """
-        return self.num_yearly_pmts
+        return self.__num_yearly_pmts
     
     def set_num_yearly_pmts(self, num_yearly_pmts):
         """Set/change the number of yearly payments
@@ -187,8 +178,7 @@ class Mortgage:
         Args:
             num_yearly_pmts ([type]): [description]
         """
-        self.num_yearly_pmts = num_yearly_pmts
-        self.payment = self.get_payment()
+        self.__num_yearly_pmts = num_yearly_pmts
     
     def get_start_date(self):
         """Returns the mortgage start date
@@ -196,7 +186,7 @@ class Mortgage:
         Returns:
             datetime.date: mortgage start date
         """
-        return self.start_date
+        return self.__start_date
     
     def set_start_date(self, start_date):
         """Set/change the mortgage start date
@@ -206,9 +196,7 @@ class Mortgage:
         Args:
             start_date (str): The mortgage start date as a tuple '%Y-%m-%d'. ex: '2000-5-1' is May 1, 2000.
         """
-        #self.start_year, self.start_month, self.start_day = start_date
-        #self.start_date = (date(self.start_year, self.start_month, self.start_day))
-        self.start_date = start_date
+        self.__start_date = start_date
     
     def get_loan_amount(self):
         """Return the loan amount (loan amount = purchase price - down payment)
@@ -216,7 +204,7 @@ class Mortgage:
         Returns:
             int: the loan amount (purchase price - down payment)
         """
-        return self.loan_amount
+        return self.__loan_amount
               
     def get_payment_range(self):
         """Returns a DatetimeIndex of payment dates from loan start to finish.
@@ -224,9 +212,9 @@ class Mortgage:
         Returns:
             DatetimeIndex: Index of payment dates in Datetime format
         """
-        self.payment_range = pd.date_range(self.start_date, periods=self.years * self.num_yearly_pmts, freq='MS')
-        self.payment_range.name = 'Payment Date'
-        return self.payment_range
+        self.__payment_range = pd.date_range(self.__start_date, periods=self.__years * self.__num_yearly_pmts, freq='MS')
+        self.__payment_range.name = 'Payment Date'
+        return self.__payment_range
     
     def get_payoff_date(self):
         """Returns mortgage payoff date. This is the date of the final loan payment.
@@ -234,7 +222,7 @@ class Mortgage:
         Returns:
             Datetime.date: Date of final payment
         """
-        return self.payment_range[-1].strftime("%m-%d-%Y")
+        return self.__payment_range[-1].strftime("%m-%d-%Y")
               
     def get_number_of_payments(self):
         """Returns the number of payment periods. This is equal to the number of years times the number of yearly payments.
@@ -244,7 +232,7 @@ class Mortgage:
         Returns:
             int: the number of payment periods
         """
-        return self.years * self.num_yearly_pmts
+        return self.__years * self.__num_yearly_pmts
               
     def get_amortization_table(self):
         """Returns amortization table containing the loan payment schedule. The columns include:
@@ -261,26 +249,26 @@ class Mortgage:
         Returns:
             pandas.DataFrame: DataFrame containing the mortgage amortization table.
         """
-        self.payment_range = self.get_payment_range()
-        self.atable = pd.DataFrame(
-            index=self.payment_range,
+        self.__payment_range = self.get_payment_range()
+        atable = pd.DataFrame(
+            index=self.__payment_range,
             columns=['Payment', 'Principal Paid', 'Interest Paid', 'Beginning Balance', 'Ending Balance'],
             dtype=float
         )
-        self.atable.reset_index(inplace=True)
-        self.atable.index += 1
-        self.atable.index.name = 'Period'
-        self.atable['Payment'] = self.get_payment()
-        self.atable['Principal Paid'] = -1 * npf.ppmt(self.interest_rate/self.num_yearly_pmts, self.atable.index, self.years*self.num_yearly_pmts, self.loan_amount)
-        self.atable['Interest Paid'] = -1 * npf.ipmt(self.interest_rate/self.num_yearly_pmts, self.atable.index, self.years*self.num_yearly_pmts, self.loan_amount)
-        self.atable.loc[1, 'Beginning Balance'] = self.loan_amount
-        self.atable.loc[1, 'Ending Balance'] = self.atable.loc[1, 'Beginning Balance'] - self.atable.loc[1, 'Principal Paid']
-        for i in range(2, self.years*self.num_yearly_pmts + 1):
-            self.atable.loc[i, 'Ending Balance'] = self.atable.loc[i - 1, 'Ending Balance'] - self.atable.loc[i, 'Principal Paid']
-            self.atable.loc[i, 'Beginning Balance'] = self.atable.loc[i - 1, 'Ending Balance']
-        self.atable['Cumulative Principal Paid'] = self.atable['Principal Paid'].cumsum()
-        self.atable['Cumulative Interest Paid'] = self.atable['Interest Paid'].cumsum()
-        return self.atable.round(2)
+        atable.reset_index(inplace=True)
+        atable.index += 1
+        atable.index.name = 'Period'
+        atable['Payment'] = self.get_payment()
+        atable['Principal Paid'] = -1 * npf.ppmt(self.__interest_rate/self.__num_yearly_pmts, atable.index, self.__years*self.__num_yearly_pmts, self.__loan_amount)
+        atable['Interest Paid'] = -1 * npf.ipmt(self.__interest_rate/self.__num_yearly_pmts, atable.index, self.__years*self.__num_yearly_pmts, self.__loan_amount)
+        atable.loc[1, 'Beginning Balance'] = self.__loan_amount
+        atable.loc[1, 'Ending Balance'] = atable.loc[1, 'Beginning Balance'] - atable.loc[1, 'Principal Paid']
+        for i in range(2, self.__years*self.__num_yearly_pmts + 1):
+            atable.loc[i, 'Ending Balance'] = atable.loc[i - 1, 'Ending Balance'] - atable.loc[i, 'Principal Paid']
+            atable.loc[i, 'Beginning Balance'] = atable.loc[i - 1, 'Ending Balance']
+        atable['Cumulative Principal Paid'] = atable['Principal Paid'].cumsum()
+        atable['Cumulative Interest Paid'] = atable['Interest Paid'].cumsum()
+        return atable.round(2)
     
     def get_total_principal_paid(self):
         """Returns the total principal paid. This value should be equal to the loan amount.
@@ -288,7 +276,8 @@ class Mortgage:
         Returns:
             float: Total principal paid
         """
-        return round(self.atable['Cumulative Principal Paid'].iloc[-1], 2)
+        atable = self.get_amortization_table()
+        return round(atable['Cumulative Principal Paid'].iloc[-1], 2)
               
     def get_total_interest_paid(self):
         """Returns the total interest paid over the life of the loan.
@@ -296,7 +285,8 @@ class Mortgage:
         Returns:
             float: Total interest paid
         """
-        return round(self.atable['Cumulative Interest Paid'].iloc[-1], 2)
+        atable = self.get_amortization_table()
+        return round(atable['Cumulative Interest Paid'].iloc[-1], 2)
     
     def get_total_cost_of_loan(self):
         """Returns the total paid over the life of the loan and is equal to the total prinicipal plus the total interest.
@@ -393,9 +383,6 @@ class Mortgage:
 class ExtraMonthlyPrincipal(Mortgage):
     
     def __init__(self, mortgage, extra_principal):
-        # inherit attributes from base Mortgage class
-        # initialize instance extra_principal_payment attribute
-        self.extra_principal = float(extra_principal)
         Mortgage.__init__(
             self,
             mortgage.get_purchase_price(),
@@ -405,52 +392,53 @@ class ExtraMonthlyPrincipal(Mortgage):
             mortgage.get_years(),
             mortgage.get_num_yearly_pmts()
         )
+        self.__extra_principal = float(extra_principal)
         
     def get_extra_principal(self):
-        return self.extra_principal
+        return self.__extra_principal
     
     def set_extra_principal(self, extra_principal):
-        self.extra_principal = float(extra_principal)
+        self.__extra_principal = float(extra_principal)
         
     def get_amortization_table(self, extra_principal_start_date=None):
-        self.payment_range = self.get_payment_range()
-        self.atable = pd.DataFrame(
-            index=self.payment_range,
+        self.__payment_range = self.get_payment_range()
+        atable = pd.DataFrame(
+            index=self.__payment_range,
             columns=['Payment', 'Principal Paid', 'Interest Paid', 'Extra Principal', 'Beginning Balance', 'Ending Balance', 'Cumulative Principal Paid', 'Cumulative Interest Paid'],
             dtype=float
         )
-        self.atable.reset_index(inplace=True)
-        self.atable.index += 1
-        self.atable.index.name = 'Period'
-        self.atable['Payment'] = self.get_payment()
-        self.atable[['Principal Paid', 'Interest Paid', 'Extra Principal', 'Beginning Balance', 'Cumulative Principal Paid', 'Cumulative Interest Paid']] = 0
-        self.atable['Ending Balance'] = np.nan
-        self.atable.loc[1, 'Principal Paid'] = -1 * npf.ppmt(self.interest_rate/self.num_yearly_pmts, self.atable.index, self.years*self.num_yearly_pmts, self.loan_amount)[0]
-        self.atable.loc[1, 'Interest Paid'] = -1 * npf.ipmt(self.interest_rate/self.num_yearly_pmts, self.atable.index, self.years*self.num_yearly_pmts, self.loan_amount)[0]
-        self.atable['Extra Principal'] = self.get_extra_principal()
+        atable.reset_index(inplace=True)
+        atable.index += 1
+        atable.index.name = 'Period'
+        atable['Payment'] = self.get_payment()
+        atable[['Principal Paid', 'Interest Paid', 'Extra Principal', 'Beginning Balance', 'Cumulative Principal Paid', 'Cumulative Interest Paid']] = 0
+        atable['Ending Balance'] = np.nan
+        atable.loc[1, 'Principal Paid'] = -1 * npf.ppmt(self.get_interest_rate()/self.get_num_yearly_pmts(), atable.index, self.get_years()*self.get_num_yearly_pmts(), self.get_loan_amount())[0]
+        atable.loc[1, 'Interest Paid'] = -1 * npf.ipmt(self.get_interest_rate()/self.get_num_yearly_pmts(), atable.index, self.get_years()*self.get_num_yearly_pmts(), self.get_loan_amount())[0]
+        atable['Extra Principal'] = self.get_extra_principal()
         if extra_principal_start_date:
             # If a start date is not provided, assume that additional principal payments will start with the first payment
             # Otherwise, find the Payment Period corresponding with the provided start date and fill with zeros up to that point
-            self.atable.loc[self.atable['Payment Date'] < extra_principal_start_date, 'Extra Principal'] = float(0)
-        self.atable.loc[1, 'Beginning Balance'] = self.loan_amount
-        self.atable.loc[1, 'Ending Balance'] = self.atable.loc[1, 'Beginning Balance'] - self.atable.loc[1, 'Principal Paid'] - self.atable.loc[1, 'Extra Principal']
-        for i in range(2, self.years*self.num_yearly_pmts + 1):
-            if round(self.atable.loc[i - 1, 'Ending Balance'], 2) > 0 and self.get_payment() >= self.atable.loc[i - 1, 'Ending Balance']:
-                self.atable.loc[i, 'Payment'] = self.atable.loc[i - 1, 'Ending Balance'] * (1 + self.interest_rate / self.num_yearly_pmts)
-                self.atable.loc[i, 'Interest Paid'] = self.interest_rate / self.num_yearly_pmts * self.atable.loc[i - 1, 'Ending Balance']
-                self.atable.loc[i, 'Principal Paid'] = self.atable.loc[i, 'Payment'] - self.atable.loc[i, 'Interest Paid']
-                self.atable.loc[i, 'Ending Balance'] = self.atable.loc[i - 1, 'Ending Balance'] - self.atable.loc[i, 'Principal Paid']
-                self.atable.loc[i, 'Beginning Balance'] = self.atable.loc[i - 1, 'Ending Balance']
-                self.atable.loc[i, 'Extra Principal'] = 0.0
-                if self.atable.loc[i, 'Ending Balance'].round(2) == 0:
+            atable.loc[atable['Payment Date'] < extra_principal_start_date, 'Extra Principal'] = float(0)
+        atable.loc[1, 'Beginning Balance'] = self.get_loan_amount()
+        atable.loc[1, 'Ending Balance'] = atable.loc[1, 'Beginning Balance'] - atable.loc[1, 'Principal Paid'] - atable.loc[1, 'Extra Principal']
+        for i in range(2, self.get_years()*self.get_num_yearly_pmts() + 1):
+            if round(atable.loc[i - 1, 'Ending Balance'], 2) > 0 and self.get_payment() >= atable.loc[i - 1, 'Ending Balance']:
+                atable.loc[i, 'Payment'] = atable.loc[i - 1, 'Ending Balance'] * (1 + self.get_interest_rate() / self.get_num_yearly_pmts())
+                atable.loc[i, 'Interest Paid'] = self.get_interest_rate() / self.get_num_yearly_pmts() * atable.loc[i - 1, 'Ending Balance']
+                atable.loc[i, 'Principal Paid'] = atable.loc[i, 'Payment'] - atable.loc[i, 'Interest Paid']
+                atable.loc[i, 'Ending Balance'] = atable.loc[i - 1, 'Ending Balance'] - atable.loc[i, 'Principal Paid']
+                atable.loc[i, 'Beginning Balance'] = atable.loc[i - 1, 'Ending Balance']
+                atable.loc[i, 'Extra Principal'] = 0.0
+                if atable.loc[i, 'Ending Balance'].round(2) == 0:
                     break
             else:
-                self.atable.loc[i, 'Interest Paid'] = self.interest_rate / self.num_yearly_pmts * self.atable.loc[i - 1, 'Ending Balance']
-                self.atable.loc[i, 'Principal Paid'] = self.atable.loc[i, 'Payment'] - self.atable.loc[i, 'Interest Paid']
-                self.atable.loc[i, 'Ending Balance'] = self.atable.loc[i - 1, 'Ending Balance'] - self.atable.loc[i, 'Principal Paid'] - self.atable.loc[i, 'Extra Principal']
-                self.atable.loc[i, 'Beginning Balance'] = self.atable.loc[i - 1, 'Ending Balance']
-        self.atable = self.atable[self.atable['Ending Balance'].round(2) >= 0.0]
-        per_month_principal_paid = self.atable['Principal Paid'] + self.atable['Extra Principal']
-        self.atable['Cumulative Principal Paid'] = per_month_principal_paid.cumsum()
-        self.atable['Cumulative Interest Paid'] = self.atable['Interest Paid'].cumsum()
-        return self.atable.round(2)
+                atable.loc[i, 'Interest Paid'] = self.get_interest_rate() / self.get_num_yearly_pmts() * atable.loc[i - 1, 'Ending Balance']
+                atable.loc[i, 'Principal Paid'] = atable.loc[i, 'Payment'] - atable.loc[i, 'Interest Paid']
+                atable.loc[i, 'Ending Balance'] = atable.loc[i - 1, 'Ending Balance'] - atable.loc[i, 'Principal Paid'] - atable.loc[i, 'Extra Principal']
+                atable.loc[i, 'Beginning Balance'] = atable.loc[i - 1, 'Ending Balance']
+        atable = atable[atable['Ending Balance'].round(2) >= 0.0]
+        per_month_principal_paid = atable['Principal Paid'] + atable['Extra Principal']
+        atable['Cumulative Principal Paid'] = per_month_principal_paid.cumsum()
+        atable['Cumulative Interest Paid'] = atable['Interest Paid'].cumsum()
+        return atable.round(2)

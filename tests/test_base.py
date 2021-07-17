@@ -40,15 +40,15 @@ class TestBaseMortgage(unittest.TestCase):
         
     def test_02_set_purchase_price(self):
         self.loan.set_purchase_price(250000)
-        self.assertEqual(250000, self.loan.purchase_price)
-        self.assertEqual(0.2*250000, self.loan.down_payment)
-        self.assertEqual(250000 - (0.2*250000), self.loan.loan_amount)
+        self.assertEqual(250000, self.loan.get_purchase_price())
+        self.assertEqual(0.2*250000, self.loan.get_down_payment())
+        self.assertEqual(250000 - (0.2*250000), self.loan.get_loan_amount())
         pmt = round(-1 * npf.pmt(
             self.interest_rate/self.num_yearly_pmts, 
             self.num_yearly_pmts*self.years,
             250000 - 0.2*250000
         ), 2)
-        self.assertAlmostEqual(pmt, self.loan.payment)
+        self.assertAlmostEqual(pmt, self.loan.get_payment())
 
     def test_03_get_down_payment_percent(self):
         self.assertEqual(self.down_payment_percent, self.loan.get_down_payment_percent())
@@ -56,15 +56,15 @@ class TestBaseMortgage(unittest.TestCase):
     def test_04_set_down_payment_percent(self):
         dpp = 0.25
         self.loan.set_down_payment_percent(dpp)
-        self.assertEqual(dpp, self.loan.down_payment_percent)
-        self.assertEqual(self.purchase_price*dpp, self.loan.down_payment)
-        self.assertEqual(self.purchase_price - dpp*self.purchase_price, self.loan.loan_amount)
+        self.assertEqual(dpp, self.loan.get_down_payment_percent())
+        self.assertEqual(self.purchase_price*dpp, self.loan.get_down_payment())
+        self.assertEqual(self.purchase_price - dpp*self.purchase_price, self.loan.get_loan_amount())
         pmt = round(-1 * npf.pmt(
             self.interest_rate/self.num_yearly_pmts,
             self.num_yearly_pmts*self.years,
             self.purchase_price - dpp*self.purchase_price
         ), 2)
-        self.assertAlmostEqual(pmt, self.loan.payment)
+        self.assertAlmostEqual(pmt, self.loan.get_payment())
 
     def test_05_get_down_payment(self):
         self.assertEqual(self.down_payment, self.loan.get_down_payment())
@@ -72,15 +72,15 @@ class TestBaseMortgage(unittest.TestCase):
     def test_06_set_down_payment(self):
         dp = 50000
         self.loan.set_down_payment(dp)
-        self.assertEqual(dp, self.loan.down_payment)
-        self.assertEqual(self.purchase_price - dp, self.loan.loan_amount)
-        self.assertAlmostEqual(dp/self.purchase_price, self.loan.down_payment_percent)
+        self.assertEqual(dp, self.loan.get_down_payment())
+        self.assertEqual(self.purchase_price - dp, self.loan.get_loan_amount())
+        self.assertAlmostEqual(dp/self.purchase_price, self.loan.get_down_payment_percent())
         pmt = round(-1 * npf.pmt(
             self.interest_rate/self.num_yearly_pmts,
             self.num_yearly_pmts*self.years,
             self.purchase_price - dp
         ), 2)
-        self.assertAlmostEqual(pmt, self.loan.payment)
+        self.assertAlmostEqual(pmt, self.loan.get_payment())
         
     def test_07_get_interest_rate(self):
         self.assertEqual(self.interest_rate, self.loan.get_interest_rate())
@@ -88,13 +88,13 @@ class TestBaseMortgage(unittest.TestCase):
     def test_08_set_interest_rate(self):
         ir = 0.04125
         self.loan.set_interest_rate(ir)
-        self.assertEqual(ir, self.loan.interest_rate)
+        self.assertEqual(ir, self.loan.get_interest_rate())
         pmt = round(-1 * npf.pmt(
             ir/self.num_yearly_pmts,
             self.num_yearly_pmts*self.years,
             self.loan_amount
         ), 2)
-        self.assertAlmostEqual(pmt, self.loan.payment)
+        self.assertAlmostEqual(pmt, self.loan.get_payment())
         
     def test_09_get_years(self):
         self.assertEqual(self.years, self.loan.get_years())
@@ -102,13 +102,13 @@ class TestBaseMortgage(unittest.TestCase):
     def test_10_set_years(self):
         years = 15
         self.loan.set_years(years)
-        self.assertEqual(years, self.loan.years)
+        self.assertEqual(years, self.loan.get_years())
         pmt = round(-1 * npf.pmt(
             self.interest_rate/self.num_yearly_pmts,
             self.num_yearly_pmts*years,
             self.loan_amount
         ), 2)
-        self.assertAlmostEqual(pmt, self.loan.payment)
+        self.assertAlmostEqual(pmt, self.loan.get_payment())
         
     def test_11_get_num_yearly_pmts(self):
         self.assertEqual(self.num_yearly_pmts, self.loan.get_num_yearly_pmts())
@@ -116,13 +116,13 @@ class TestBaseMortgage(unittest.TestCase):
     def test_12_set_num_yearly_pmts(self):
         num_yearly_pmts = 6
         self.loan.set_num_yearly_pmts(num_yearly_pmts)
-        self.assertEqual(num_yearly_pmts, self.loan.num_yearly_pmts)
+        self.assertEqual(num_yearly_pmts, self.loan.get_num_yearly_pmts())
         pmt = round(-1 * npf.pmt(
             self.interest_rate/num_yearly_pmts,
             num_yearly_pmts*self.years,
             self.loan_amount
         ), 2)
-        self.assertAlmostEqual(pmt, self.loan.payment)
+        self.assertAlmostEqual(pmt, self.loan.get_payment())
         
     def test_13_get_start_date(self):
         self.assertEqual(self.start_date, self.loan.get_start_date())
@@ -130,7 +130,7 @@ class TestBaseMortgage(unittest.TestCase):
     def test_14_set_start_date(self):
         start_date = '2022-1-1'
         self.loan.set_start_date(start_date)
-        self.assertEqual(start_date, self.loan.start_date)
+        self.assertEqual(start_date, self.loan.get_start_date())
         
     def test_15_get_loan_amount(self):
         self.assertEqual(self.loan_amount, self.loan.get_loan_amount())
