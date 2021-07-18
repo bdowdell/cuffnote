@@ -547,7 +547,47 @@ class AnnualLumpPayment(ExtraMonthlyPrincipal, Mortgage):
         
     @property
     def __amortization_table(self):
-        pass
+        atable = pd.DataFrame(
+            index=self.get_payment_range(),
+            columns=['Payment', 'Principal Paid', 'Interest Paid', 'Extra Principal', 'Beginning Balance', 'Ending Balance', 'Cumulative Principal Paid', 'Cumulative Interest Paid'],
+            dtype=float
+        )
+        atable.reset_index(inplace=True)
+        atable.index += 1
+        atable.index.name = 'Period'
+        atable['Payment'] = self.get_payment()
+        atable[['Principal Paid', 'Interest Paid', 'Extra Principal', 'Beginning Balance', 'Cumulative Principal Paid', 'Cumulative Interest Paid']] = 0
+        atable['Ending Balance'] = np.nan
+        atable.loc[1, 'Principal Paid'] = -1 * npf.ppmt(self.get_interest_rate()/self.get_num_yearly_pmts(), atable.index, self.get_years()*self.get_num_yearly_pmts(), self.get_loan_amount())[0]
+        atable.loc[1, 'Interest Paid'] = -1 * npf.ipmt(self.get_interest_rate()/self.get_num_yearly_pmts(), atable.index, self.get_years()*self.get_num_yearly_pmts(), self.get_loan_amount())[0]
+        atable['Extra Principal'] = self.get_extra_principal()
+        atable.loc[atable['Payment Date'] < self.get_extra_principal_start_date(), 'Extra Principal'] = float(0)
+        atable.loc[atable['Payment Date'].dt.month == self.get_annual_payment_month(), 'Extra Principal'] += self.get_annual_payment()
+        atable.loc[1, 'Beginning Balance'] = self.get_loan_amount()
+        atable.loc[1, 'Ending Balance'] = atable.loc[1, 'Beginning Balance'] - atable.loc[1, 'Principal Paid'] - atable.loc[1, 'Extra Principal']
+        for i in range(2, self.get_years()*self.get_num_yearly_pmts() + 1):
+            if atable.loc[i - 1, 'Ending Balance'].round(2) < atable.loc[i, 'Extra Principal']:
+                atable.loc[i, 'Extra Principal'] -= self.get_annual_payment()
+            if round(atable.loc[i - 1, 'Ending Balance'], 2) > 0 and self.get_payment() >= atable.loc[i - 1, 'Ending Balance']:
+                atable.loc[i, 'Payment'] = atable.loc[i - 1, 'Ending Balance'] * (1 + self.get_interest_rate() / self.get_num_yearly_pmts())
+                atable.loc[i, 'Interest Paid'] = self.get_interest_rate() / self.get_num_yearly_pmts() * atable.loc[i - 1, 'Ending Balance']
+                atable.loc[i, 'Principal Paid'] = atable.loc[i, 'Payment'] - atable.loc[i, 'Interest Paid']
+                atable.loc[i, 'Ending Balance'] = atable.loc[i - 1, 'Ending Balance'] - atable.loc[i, 'Principal Paid']
+                atable.loc[i, 'Beginning Balance'] = atable.loc[i - 1, 'Ending Balance']
+                atable.loc[i, 'Extra Principal'] = 0.0
+                if atable.loc[i, 'Ending Balance'].round(2) == 0:
+                    break
+            else:
+                atable.loc[i, 'Interest Paid'] = self.get_interest_rate() / self.get_num_yearly_pmts() * atable.loc[i - 1, 'Ending Balance']
+                atable.loc[i, 'Principal Paid'] = atable.loc[i, 'Payment'] - atable.loc[i, 'Interest Paid']
+                atable.loc[i, 'Ending Balance'] = atable.loc[i - 1, 'Ending Balance'] - atable.loc[i, 'Principal Paid'] - atable.loc[i, 'Extra Principal']
+                atable.loc[i, 'Beginning Balance'] = atable.loc[i - 1, 'Ending Balance']
+        atable = atable[atable['Ending Balance'].round(2) >= 0.0]
+        atable.loc[atable.index.max(), 'Ending Balance'] = abs(atable.loc[atable.index.max(), 'Ending Balance'])
+        per_month_principal_paid = atable['Principal Paid'] + atable['Extra Principal']
+        atable['Cumulative Principal Paid'] = per_month_principal_paid.cumsum()
+        atable['Cumulative Interest Paid'] = atable['Interest Paid'].cumsum()
+        return atable.round(2)
     
     def get_amortization_table(self):
         return self.__amortization_table
