@@ -3,6 +3,7 @@
 # -*-coding:utf-8 -*-
 
 import numpy as np
+from numpy.lib.arraysetops import isin
 import numpy_financial as npf
 import pandas as pd
 #from datetime import date
@@ -509,3 +510,25 @@ class ExtraMonthlyPrincipal(Mortgage):
     
     def get_time_saved(self):
         return f"{self.get_periods_saved() // self.get_num_yearly_pmts()} years, {self.get_periods_saved() % self.get_num_yearly_pmts()} months"
+
+
+class AnnualLumpPayment(ExtraMonthlyPrincipal, Mortgage):
+    
+    def __init__(self, mortgage, annual_payment, annual_payment_month):
+        if not isinstance(mortgage, ExtraMonthlyPrincipal):
+            # use ExtraMonthlyPrincipal constructor with extra principal set to 0
+            ExtraMonthlyPrincipal.__init__(
+                self,
+                mortgage,
+                extra_principal=0,
+                extra_principal_start_date=None
+            )
+        else:
+            ExtraMonthlyPrincipal.__init__(
+                self,
+                mortgage,
+                mortgage.get_extra_principal(),
+                mortgage.get_extra_principal_start_date()
+            )
+        self.__annual_payment = annual_payment
+        self.__annual_payment_month = annual_payment_month
