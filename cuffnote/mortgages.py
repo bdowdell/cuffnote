@@ -459,3 +459,10 @@ class ExtraMonthlyPrincipal(Mortgage):
     
     def get_payoff_date(self):
         return self.__payoff_date
+    
+    @property
+    def __time_saved(self):
+        return len(super().get_amortization_table().index) - len(self.get_amortization_table().index)
+    
+    def get_time_saved(self):
+        return self.__time_saved

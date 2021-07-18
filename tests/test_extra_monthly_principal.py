@@ -97,6 +97,12 @@ class TestExtraMonthlyPrincipal(unittest.TestCase):
             self.loan_xtra_prncpl.get_payoff_date()
         )
         
+    def test_08_time_saved(self):
+        time_saved = 360 - 167
+        self.assertEqual(
+            time_saved,
+            self.loan_xtra_prncpl.get_time_saved()
+        )
         
 
 if __name__ == '__main__':
