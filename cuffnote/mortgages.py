@@ -493,10 +493,10 @@ class ExtraMonthlyPrincipal(Mortgage):
         return self.__amortization_table
     
     @property
-    def __time_saved(self):
+    def __periods_saved(self):
         return len(super().get_amortization_table().index) - len(self.get_amortization_table().index)
     
-    def get_time_saved(self):
+    def get_periods_saved(self):
         """Returns the difference in number of payment periods as a result of paying 
         extra monthly principal
         
@@ -505,4 +505,4 @@ class ExtraMonthlyPrincipal(Mortgage):
         Returns:
             int: number of payment periods saved by paying additional principal monthly
         """
-        return self.__time_saved
+        return self.__periods_saved
