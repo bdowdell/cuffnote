@@ -205,18 +205,6 @@ class Mortgage:
             DatetimeIndex: Index of payment dates in Datetime format
         """
         return self.__payment_range
-    
-    @property
-    def __payoff_date(self):
-        return self.get_payment_range()[-1].strftime('%m-%d-%Y')
-    
-    def get_payoff_date(self):
-        """Returns mortgage payoff date. This is the date of the final loan payment.
-
-        Returns:
-            Datetime.date: Date of final payment
-        """
-        return self.__payoff_date
               
     def get_number_of_payments(self):
         """Returns the number of payment periods. This is equal to the number of years times the number of yearly payments.
@@ -266,6 +254,18 @@ class Mortgage:
     
     def get_amortization_table(self):
         return self.__amortization_table
+    
+    @property
+    def __payoff_date(self):
+        return self.get_amortization_table().iloc[-1, 0].strftime('%m-%d-%Y')
+    
+    def get_payoff_date(self):
+        """Returns mortgage payoff date. This is the date of the final loan payment.
+
+        Returns:
+            Datetime.date: Date of final payment
+        """
+        return self.__payoff_date
     
     def get_total_principal_paid(self):
         """Returns the total principal paid. This value should be equal to the loan amount.
@@ -390,7 +390,7 @@ class ExtraMonthlyPrincipal(Mortgage):
             mortgage.get_num_yearly_pmts()
         )
         self.__extra_principal = float(extra_principal)
-        self.extra_principal_start_date = extra_principal_start_date
+        self.__extra_principal_start_date = self.set_extra_principal_start_date(extra_principal_start_date)
         
         
     def get_extra_principal(self):
@@ -398,14 +398,12 @@ class ExtraMonthlyPrincipal(Mortgage):
     
     def set_extra_principal(self, extra_principal):
         self.__extra_principal = float(extra_principal)
-
-    @property
-    def extra_principal_start_date(self):
+    
+    def get_extra_principal_start_date(self):
         return self.__extra_principal_start_date
     
-    @extra_principal_start_date.setter
-    def extra_principal_start_date(self, extra_principal_start_date):
-        self.__extra_principal_start_date = extra_principal_start_date
+    def set_extra_principal_start_date(self, start_date):
+        self.__extra_principal_start_date = start_date
         
     @property
     def __amortization_table(self):
@@ -423,10 +421,10 @@ class ExtraMonthlyPrincipal(Mortgage):
         atable.loc[1, 'Principal Paid'] = -1 * npf.ppmt(self.get_interest_rate()/self.get_num_yearly_pmts(), atable.index, self.get_years()*self.get_num_yearly_pmts(), self.get_loan_amount())[0]
         atable.loc[1, 'Interest Paid'] = -1 * npf.ipmt(self.get_interest_rate()/self.get_num_yearly_pmts(), atable.index, self.get_years()*self.get_num_yearly_pmts(), self.get_loan_amount())[0]
         atable['Extra Principal'] = self.get_extra_principal()
-        if self.extra_principal_start_date:
+        if self.get_extra_principal_start_date():
             # If a start date is not provided, assume that additional principal payments will start with the first payment
             # Otherwise, find the Payment Period corresponding with the provided start date and fill with zeros up to that point
-            atable.loc[atable['Payment Date'] < self.__extra_principal_start_date, 'Extra Principal'] = float(0)
+            atable.loc[atable['Payment Date'] < self.get_extra_principal_start_date(), 'Extra Principal'] = float(0)
         atable.loc[1, 'Beginning Balance'] = self.get_loan_amount()
         atable.loc[1, 'Ending Balance'] = atable.loc[1, 'Beginning Balance'] - atable.loc[1, 'Principal Paid'] - atable.loc[1, 'Extra Principal']
         for i in range(2, self.get_years()*self.get_num_yearly_pmts() + 1):
@@ -452,13 +450,6 @@ class ExtraMonthlyPrincipal(Mortgage):
     
     def get_amortization_table(self):
         return self.__amortization_table
-
-    @property
-    def __payoff_date(self):
-        return self.get_amortization_table().iloc[-1, 0].strftime('%Y-%m-%d')
-    
-    def get_payoff_date(self):
-        return self.__payoff_date
     
     @property
     def __time_saved(self):

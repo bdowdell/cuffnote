@@ -75,9 +75,10 @@ class TestExtraMonthlyPrincipal(unittest.TestCase):
             self.loan_xtra_prncpl.get_amortization_table().loc[1, 'Extra Principal']
         )
         
-    def test_06_get_amortization_table_start_date(self):
+    def test_06_set_extra_principal_start_date(self):
         new_start_date = self.loan_xtra_prncpl.get_payment_range()[12].strftime('%Y-%m-%d')
-        self.loan_xtra_prncpl.extra_principal_start_date = new_start_date
+        #self.loan_xtra_prncpl.extra_principal_start_date = new_start_date
+        self.loan_xtra_prncpl.set_extra_principal_start_date(new_start_date)
         atable_extra_prncpl_shifted = self.loan_xtra_prncpl.get_amortization_table()
         self.assertEqual(
             0,
@@ -88,12 +89,12 @@ class TestExtraMonthlyPrincipal(unittest.TestCase):
             atable_extra_prncpl_shifted.loc[13, 'Extra Principal']
         )
         
-    def test_07_get_amortization_table_payoff_date(self):
+    def test_07_get_payoff_date(self):
         # source: https://www.mortgagecalculator.org/calculators/what-if-i-pay-more-calculator.php#top
         # using same inputs, number of periods with monthly extra principal is 167
         num_periods = 167
         self.assertEqual(
-            self.loan.get_payment_range()[num_periods-1].strftime('%Y-%m-%d'),
+            self.loan.get_payment_range()[num_periods-1].strftime('%m-%d-%Y'),
             self.loan_xtra_prncpl.get_payoff_date()
         )
         
