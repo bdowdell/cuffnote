@@ -532,3 +532,22 @@ class AnnualLumpPayment(ExtraMonthlyPrincipal, Mortgage):
             )
         self.__annual_payment = annual_payment
         self.__annual_payment_month = annual_payment_month
+        
+    def get_annual_payment(self):
+        return self.__annual_payment
+    
+    def set_annual_payment(self, annual_payment):
+        self.__annual_payment = annual_payment
+        
+    def get_annual_payment_month(self):
+        return self.__annual_payment_month
+    
+    def set_annual_payment_month(self, month):
+        self.__annual_payment_month = month
+        
+    @property
+    def __amortization_table(self):
+        pass
+    
+    def get_amortization_table(self):
+        return self.__amortization_table
