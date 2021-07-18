@@ -378,8 +378,21 @@ class Mortgage:
     
     
 class ExtraMonthlyPrincipal(Mortgage):
+    """Subclass of Mortgage. Enables adding extra monthly principal payments to model 
+    the effects of paying down principal at a quicker rate.
+
+    Args:
+        Mortgage (object): An instance of the base Mortgage class
+    """
     
     def __init__(self, mortgage, extra_principal, extra_principal_start_date=None):
+        """Initialize & inherit class attributes
+
+        Args:
+            mortgage (cuffnote.mortgages.Mortgage): An instance of the base Mortgage class
+            extra_principal (int): The amount of extra monthly principal payment
+            extra_principal_start_date (str, optional): Optional parameter to adjust starting date of extra payments. Defaults to None. Ex: '2022-1-1' for January 1, 2022.
+        """
         Mortgage.__init__(
             self,
             mortgage.get_purchase_price(),
@@ -390,19 +403,43 @@ class ExtraMonthlyPrincipal(Mortgage):
             mortgage.get_num_yearly_pmts()
         )
         self.__extra_principal = float(extra_principal)
-        self.__extra_principal_start_date = self.set_extra_principal_start_date(extra_principal_start_date)
-        
+        if extra_principal_start_date is None:
+            extra_principal_start_date = super().get_start_date()
+        self.__extra_principal_start_date = extra_principal_start_date
         
     def get_extra_principal(self):
+        """Returns extra monthly principal attribute value
+
+        Returns:
+            float: The extra monthly principal attribute instance value
+        """
         return self.__extra_principal
     
     def set_extra_principal(self, extra_principal):
+        """Set or change the extra monthly principal attribute value
+
+        Args:
+            extra_principal (int): Value of extra monthly principal payment
+        """
         self.__extra_principal = float(extra_principal)
     
     def get_extra_principal_start_date(self):
+        """Returns the starting date of when extra monthly principal payments begin.
+
+        Returns:
+            str: String representation of extra monthly principal starting date
+        """
         return self.__extra_principal_start_date
     
     def set_extra_principal_start_date(self, start_date):
+        """Set the extra monthly principal payment starting date.
+        
+        If not set when class is initialized, the attribute value defaults to the 
+        loan start date
+
+        Args:
+            start_date (str): Date to start paying extra monthly principal. Ex: '2022-1-1' for Jan. 1, 2022
+        """
         self.__extra_principal_start_date = start_date
         
     @property
@@ -421,10 +458,7 @@ class ExtraMonthlyPrincipal(Mortgage):
         atable.loc[1, 'Principal Paid'] = -1 * npf.ppmt(self.get_interest_rate()/self.get_num_yearly_pmts(), atable.index, self.get_years()*self.get_num_yearly_pmts(), self.get_loan_amount())[0]
         atable.loc[1, 'Interest Paid'] = -1 * npf.ipmt(self.get_interest_rate()/self.get_num_yearly_pmts(), atable.index, self.get_years()*self.get_num_yearly_pmts(), self.get_loan_amount())[0]
         atable['Extra Principal'] = self.get_extra_principal()
-        if self.get_extra_principal_start_date():
-            # If a start date is not provided, assume that additional principal payments will start with the first payment
-            # Otherwise, find the Payment Period corresponding with the provided start date and fill with zeros up to that point
-            atable.loc[atable['Payment Date'] < self.get_extra_principal_start_date(), 'Extra Principal'] = float(0)
+        atable.loc[atable['Payment Date'] < self.get_extra_principal_start_date(), 'Extra Principal'] = float(0)
         atable.loc[1, 'Beginning Balance'] = self.get_loan_amount()
         atable.loc[1, 'Ending Balance'] = atable.loc[1, 'Beginning Balance'] - atable.loc[1, 'Principal Paid'] - atable.loc[1, 'Extra Principal']
         for i in range(2, self.get_years()*self.get_num_yearly_pmts() + 1):
@@ -449,6 +483,11 @@ class ExtraMonthlyPrincipal(Mortgage):
         return atable.round(2)
     
     def get_amortization_table(self):
+        """Returns the amortization table
+
+        Returns:
+            pandas.DataFrame: Amortization table reflecting additional extra monthly principal
+        """
         return self.__amortization_table
     
     @property
@@ -456,4 +495,12 @@ class ExtraMonthlyPrincipal(Mortgage):
         return len(super().get_amortization_table().index) - len(self.get_amortization_table().index)
     
     def get_time_saved(self):
+        """Returns the difference in number of payment periods as a result of paying 
+        extra monthly principal
+        
+        This is equal to the length of the mortgage minus the length of the mortgage with extra monthly principal.
+
+        Returns:
+            int: number of payment periods saved by paying additional principal monthly
+        """
         return self.__time_saved
