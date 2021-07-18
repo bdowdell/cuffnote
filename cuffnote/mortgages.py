@@ -506,3 +506,6 @@ class ExtraMonthlyPrincipal(Mortgage):
             int: number of payment periods saved by paying additional principal monthly
         """
         return self.__periods_saved
+    
+    def get_time_saved(self):
+        return f"{self.get_periods_saved() // self.get_num_yearly_pmts()} years, {self.get_periods_saved() % self.get_num_yearly_pmts()} months"
