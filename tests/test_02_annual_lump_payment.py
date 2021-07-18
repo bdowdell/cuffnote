@@ -3,6 +3,7 @@
 # -*-coding:utf-8 -*-
 
 import unittest
+import pandas as pd
 from cuffnote.mortgages import Mortgage, ExtraMonthlyPrincipal, AnnualLumpPayment
 
 
@@ -54,6 +55,44 @@ class TestAnnualLumpPayment(unittest.TestCase):
         self.assertEqual(
             0.0,
             self.base_alp.get_extra_principal()
+        )
+        
+    def test_01_init_from_extramonthlyprincipal(self):
+        self.assertEqual(
+            self.xtra_principal,
+            self.loan_xmp_alp.get_extra_principal()
+        )
+        
+    def test_02_get_annual_payment(self):
+        self.assertEqual(
+            self.annual_payment,
+            self.loan_xmp_alp.get_annual_payment()
+        )
+        
+    def test_03_set_annual_payment(self):
+        self.loan_xmp_alp.set_annual_payment(12000)
+        self.assertEqual(
+            12000,
+            self.loan_xmp_alp.get_annual_payment()
+        )
+        
+    def test_04_get_annual_payment_month(self):
+        self.assertEqual(
+            self.annual_payment_month,
+            self.loan_xmp_alp.get_annual_payment_month()
+        )
+        
+    def test_05_set_annual_payment_month(self):
+        self.loan_xmp_alp.set_annual_payment_month(5)
+        self.assertEqual(
+            5,
+            self.loan_xmp_alp.get_annual_payment_month()
+        )
+        
+    def test_06_get_amortization_table(self):
+        self.assertIsInstance(
+            self.loan_xmp_alp.get_amortization_table(),
+            pd.DataFrame
         )
         
 
