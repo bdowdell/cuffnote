@@ -248,6 +248,7 @@ class Mortgage:
         for i in range(2, self.__years*self.__num_yearly_pmts + 1):
             atable.loc[i, 'Ending Balance'] = atable.loc[i - 1, 'Ending Balance'] - atable.loc[i, 'Principal Paid']
             atable.loc[i, 'Beginning Balance'] = atable.loc[i - 1, 'Ending Balance']
+        atable.loc[atable.index.max(), 'Ending Balance'] = abs(atable.loc[atable.index.max(), 'Ending Balance'])
         atable['Cumulative Principal Paid'] = atable['Principal Paid'].cumsum()
         atable['Cumulative Interest Paid'] = atable['Interest Paid'].cumsum()
         return atable.round(2)
@@ -477,6 +478,7 @@ class ExtraMonthlyPrincipal(Mortgage):
                 atable.loc[i, 'Ending Balance'] = atable.loc[i - 1, 'Ending Balance'] - atable.loc[i, 'Principal Paid'] - atable.loc[i, 'Extra Principal']
                 atable.loc[i, 'Beginning Balance'] = atable.loc[i - 1, 'Ending Balance']
         atable = atable[atable['Ending Balance'].round(2) >= 0.0]
+        atable.loc[atable.index.max(), 'Ending Balance'] = abs(atable.loc[atable.index.max(), 'Ending Balance'])
         per_month_principal_paid = atable['Principal Paid'] + atable['Extra Principal']
         atable['Cumulative Principal Paid'] = per_month_principal_paid.cumsum()
         atable['Cumulative Interest Paid'] = atable['Interest Paid'].cumsum()
