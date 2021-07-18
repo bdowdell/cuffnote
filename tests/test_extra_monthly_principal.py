@@ -3,9 +3,6 @@
 # -*-coding:utf-8 -*-
 
 import unittest
-import numpy as np
-import numpy_financial as npf
-import datetime as date
 import pandas as pd
 from cuffnote.mortgages import Mortgage, ExtraMonthlyPrincipal
 
