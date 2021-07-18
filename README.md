@@ -8,13 +8,6 @@ A python library for simple mortgage calculations
 
 ## running unittests using coverage & unittest
 
-First, create a file called `.coveragerc` so coverage knows what source files to test:
-
-```
-[run]
-source = cuffnote/
-```
-
 Launch the unittests using coverage:
 
 `$ coverage run -m unittest -v tests/test_* ; coverage html`
