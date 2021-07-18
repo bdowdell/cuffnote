@@ -379,7 +379,7 @@ class Mortgage:
     
 class ExtraMonthlyPrincipal(Mortgage):
     
-    def __init__(self, mortgage, extra_principal):
+    def __init__(self, mortgage, extra_principal, extra_principal_start_date=None):
         Mortgage.__init__(
             self,
             mortgage.get_purchase_price(),
@@ -390,12 +390,22 @@ class ExtraMonthlyPrincipal(Mortgage):
             mortgage.get_num_yearly_pmts()
         )
         self.__extra_principal = float(extra_principal)
+        self.extra_principal_start_date = extra_principal_start_date
+        
         
     def get_extra_principal(self):
         return self.__extra_principal
     
     def set_extra_principal(self, extra_principal):
         self.__extra_principal = float(extra_principal)
+
+    @property
+    def extra_principal_start_date(self):
+        return self.__extra_principal_start_date
+    
+    @extra_principal_start_date.setter
+    def extra_principal_start_date(self, extra_principal_start_date):
+        self.__extra_principal_start_date = extra_principal_start_date
         
     @property
     def __amortization_table(self):
@@ -413,7 +423,7 @@ class ExtraMonthlyPrincipal(Mortgage):
         atable.loc[1, 'Principal Paid'] = -1 * npf.ppmt(self.get_interest_rate()/self.get_num_yearly_pmts(), atable.index, self.get_years()*self.get_num_yearly_pmts(), self.get_loan_amount())[0]
         atable.loc[1, 'Interest Paid'] = -1 * npf.ipmt(self.get_interest_rate()/self.get_num_yearly_pmts(), atable.index, self.get_years()*self.get_num_yearly_pmts(), self.get_loan_amount())[0]
         atable['Extra Principal'] = self.get_extra_principal()
-        if self.__extra_principal_start_date:
+        if self.extra_principal_start_date:
             # If a start date is not provided, assume that additional principal payments will start with the first payment
             # Otherwise, find the Payment Period corresponding with the provided start date and fill with zeros up to that point
             atable.loc[atable['Payment Date'] < self.__extra_principal_start_date, 'Extra Principal'] = float(0)
@@ -440,13 +450,12 @@ class ExtraMonthlyPrincipal(Mortgage):
         atable['Cumulative Interest Paid'] = atable['Interest Paid'].cumsum()
         return atable.round(2)
     
-    def get_amortization_table(self, extra_principal_start_date=None):
-        self.__extra_principal_start_date = extra_principal_start_date
+    def get_amortization_table(self):
         return self.__amortization_table
 
     @property
     def __payoff_date(self):
-        return self.get_amortization_table().iloc[-1, 0].strftime('%m %d, %Y')
+        return self.get_amortization_table().iloc[-1, 0].strftime('%Y-%m-%d')
     
     def get_payoff_date(self):
         return self.__payoff_date
