@@ -513,8 +513,21 @@ class ExtraMonthlyPrincipal(Mortgage):
 
 
 class AnnualLumpPayment(ExtraMonthlyPrincipal, Mortgage):
+    """Class that inherits from both an ExtraMonthlyPrincipal instance or a Mortgage instance
+
+    Args:
+        ExtraMonthlyPrincipal (object): instance of ExtraMonthlyPrincipal class
+        Mortgage (object): instance of Mortgage base class
+    """
     
     def __init__(self, mortgage, annual_payment, annual_payment_month):
+        """initializes instance of AnnualLumpPayment class. Enables modeling yearly one-time additional principal payments.
+
+        Args:
+            mortgage (object): An instance of either Mortgage or ExtraMonthlyPrincipal classes
+            annual_payment (int): The amount of the annual additional principal payment
+            annual_payment_month (int): The calendary month as an int in which the annual payment should occur. Example: 3 represents March
+        """
         if not isinstance(mortgage, ExtraMonthlyPrincipal):
             # use ExtraMonthlyPrincipal constructor with extra principal set to 0
             ExtraMonthlyPrincipal.__init__(
@@ -534,15 +547,35 @@ class AnnualLumpPayment(ExtraMonthlyPrincipal, Mortgage):
         self.__annual_payment_month = annual_payment_month
         
     def get_annual_payment(self):
+        """returns annual payment amount
+
+        Returns:
+            int: annual payment amount
+        """
         return self.__annual_payment
     
     def set_annual_payment(self, annual_payment):
+        """Set the annual payent amount. Doing so will update the amortization table.
+
+        Args:
+            annual_payment (int): New value of annual additional principal payment
+        """
         self.__annual_payment = annual_payment
         
     def get_annual_payment_month(self):
+        """Returns the month in which the annual payment occurs
+
+        Returns:
+            int: Integer representation of the calendar month when the annual payment occurs
+        """
         return self.__annual_payment_month
     
     def set_annual_payment_month(self, month):
+        """Set the annual payment month. Doing so will update the amortization table.
+
+        Args:
+            month (int): Integer representation of the calendar month when the annual payment occurs. Ex: 3 represents March
+        """
         self.__annual_payment_month = month
         
     @property
@@ -590,4 +623,9 @@ class AnnualLumpPayment(ExtraMonthlyPrincipal, Mortgage):
         return atable.round(2)
     
     def get_amortization_table(self):
+        """returns the amortization table
+
+        Returns:
+            pandas.DataFrame: Pandas DataFrame containing the amortization table
+        """
         return self.__amortization_table
