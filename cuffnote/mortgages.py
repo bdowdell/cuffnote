@@ -3,7 +3,6 @@
 # -*-coding:utf-8 -*-
 
 import numpy as np
-from numpy.lib.arraysetops import isin
 import numpy_financial as npf
 import pandas as pd
 #from datetime import date
