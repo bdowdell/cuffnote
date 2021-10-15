@@ -5,7 +5,6 @@
 import numpy as np
 import numpy_financial as npf
 import pandas as pd
-#from datetime import date
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 
