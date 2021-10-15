@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 
-# author: Ben Dowdell
-# email: ben.dowdell87@gmail.com
-# date of initial release: October 15, 2021
-
 # -*-coding:utf-8 -*-
 
 import numpy as np
