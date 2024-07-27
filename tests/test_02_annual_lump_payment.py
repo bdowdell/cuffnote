@@ -38,6 +38,7 @@ class TestAnnualLumpPayment(unittest.TestCase):
         # annual lump payment
         self.annual_payment = 10000
         self.annual_payment_month = 12
+        self.annual_payment_start_year = 2022
         # instantiate base mortgage w/ annual lump payment
         self.base_alp = AnnualLumpPayment(
             self.loan,
@@ -49,6 +50,13 @@ class TestAnnualLumpPayment(unittest.TestCase):
             self.loan_xtra_prncpl,
             self.annual_payment,
             self.annual_payment_month
+        )
+        # instantiate base mortgage w/ annual lump payment not starting in first year
+        self.base_alp2 = AnnualLumpPayment(
+            self.loan,
+            self.annual_payment, 
+            self.annual_payment_month, 
+            self.annual_payment_start_year
         )
         
     def test_00_init_from_base_mortgage(self):
@@ -95,6 +103,38 @@ class TestAnnualLumpPayment(unittest.TestCase):
             pd.DataFrame
         )
         
+    def test_07_get_annual_payment_start_year(self):
+        # tests that when no start year is given, 
+        # the start year is the same as the loan start year
+        self.assertEqual(
+            self.loan.get_payment_range()[0].year,
+            self.base_alp.get_annual_payment_start_year()
+        )
+        
+    def test_08_set_annual_payment_start_year(self):
+        # tests setting start year for a loan that was not original set
+        self.base_alp.set_annual_payment_start_year(2024)
+        self.assertEqual(
+            2024,
+            self.base_alp.get_annual_payment_start_year()
+        )
+        
+    def test_09_annual_payment_start_year_amortization_table(self):
+        # tests that annual lump payments are properly set when 
+        # the starting year is different than the mortgage starting year
+        amort_table = self.base_alp2.get_amortization_table()
+        pre_alp_start_payments = amort_table[amort_table['Payment Date'].dt.year < self.annual_payment_start_year]['Extra Principal']
+        for pmt in pre_alp_start_payments:
+            self.assertEqual(
+                0,
+                pmt
+            )
+        post_alp_start_payments = amort_table[(amort_table['Payment Date'].dt.year >= self.annual_payment_start_year) & (amort_table['Payment Date'].dt.month == self.annual_payment_month)]['Extra Principal']
+        for pmt in post_alp_start_payments:
+            self.assertEqual(
+                self.annual_payment,
+                pmt
+            )     
 
 if __name__ == '__main__':
     unittest.main()
