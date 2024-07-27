@@ -518,13 +518,14 @@ class AnnualLumpPayment(ExtraMonthlyPrincipal, Mortgage):
         Mortgage (object): instance of Mortgage base class
     """
     
-    def __init__(self, mortgage, annual_payment, annual_payment_month):
+    def __init__(self, mortgage, annual_payment, annual_payment_month, annual_payment_start_year=None):
         """initializes instance of AnnualLumpPayment class. Enables modeling yearly one-time additional principal payments.
 
         Args:
             mortgage (object): An instance of either Mortgage or ExtraMonthlyPrincipal classes
             annual_payment (int): The amount of the annual additional principal payment
             annual_payment_month (int): The calendary month as an int in which the annual payment should occur. Example: 3 represents March
+            annual_payment_start_year (int, optional): The year in which to begin annual lump payments. Defaults to None to start in year 0. Example: If start year is 2000, then a value of 2010 will start annual payments in 2010.
         """
         if not isinstance(mortgage, ExtraMonthlyPrincipal):
             # use ExtraMonthlyPrincipal constructor with extra principal set to 0
@@ -543,6 +544,10 @@ class AnnualLumpPayment(ExtraMonthlyPrincipal, Mortgage):
             )
         self.__annual_payment = annual_payment
         self.__annual_payment_month = annual_payment_month
+        if not annual_payment_start_year:
+            self.__annual_payment_start_year = self.get_payment_range()[0].year
+        else:
+            self.__annual_payment_start_year = annual_payment_start_year
         
     def get_annual_payment(self):
         """returns annual payment amount
@@ -576,6 +581,22 @@ class AnnualLumpPayment(ExtraMonthlyPrincipal, Mortgage):
         """
         self.__annual_payment_month = month
         
+    def get_annual_payment_start_year(self):
+        """Returns the year in which the annual payments begin
+
+        Returns:
+            int: Year number in which annual payments begin
+        """
+        return self.__annual_payment_start_year
+        
+    def set_annual_payment_start_year(self, start_year):
+        """Set the annual payment start year. Doing so will update the amortization table.
+        
+        Args:
+            start_year (int): Year number as integer to begin annual lump payments
+        """
+        self.__annual_payment_start_year = start_year
+        
     @property
     def __amortization_table(self):
         atable = pd.DataFrame(
@@ -593,7 +614,12 @@ class AnnualLumpPayment(ExtraMonthlyPrincipal, Mortgage):
         atable.loc[1, 'Interest Paid'] = -1 * npf.ipmt(self.get_interest_rate()/self.get_num_yearly_pmts(), atable.index, self.get_years()*self.get_num_yearly_pmts(), self.get_loan_amount())[0]
         atable['Extra Principal'] = self.get_extra_principal()
         atable.loc[atable['Payment Date'] < self.get_extra_principal_start_date(), 'Extra Principal'] = float(0)
-        atable.loc[atable['Payment Date'].dt.month == self.get_annual_payment_month(), 'Extra Principal'] += self.get_annual_payment()
+        # check whether annual payments start in year 0 or in some other year and add them to the table accordingly
+        if self.get_annual_payment_start_year() != self.get_payment_range()[0].year:
+            date_filt = (atable['Payment Date'].dt.month == self.get_annual_payment_month()) & (atable['Payment Date'].dt.year >= self.get_annual_payment_start_year())
+            atable.loc[date_filt, 'Extra Principal'] += self.get_annual_payment()
+        else:
+            atable.loc[atable['Payment Date'].dt.month == self.get_annual_payment_month(), 'Extra Principal'] += self.get_annual_payment()
         atable.loc[1, 'Beginning Balance'] = self.get_loan_amount()
         atable.loc[1, 'Ending Balance'] = atable.loc[1, 'Beginning Balance'] - atable.loc[1, 'Principal Paid'] - atable.loc[1, 'Extra Principal']
         for i in range(2, self.get_years()*self.get_num_yearly_pmts() + 1):
