@@ -6,7 +6,7 @@ from setuptools import setup
 
 setup(
     name='cuffnote',
-    version='0.3.5',
+    version='0.3.6',
     description='Modeling mortgage loan scenarios',
     url='https://github.com/bdowdell/cuffnote',
     author='Ben Dowdell',
